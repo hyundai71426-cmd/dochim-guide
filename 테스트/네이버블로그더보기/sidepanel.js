@@ -3,8 +3,12 @@
 const listEl = document.getElementById('list');
 const emptyStateEl = document.getElementById('empty-state');
 
+function logNoOf(url) {
+  return Number(url.match(/logNo=(\d+)/)?.[1] ?? 0);
+}
+
 function render(posts) {
-  const items = Object.values(posts);
+  const items = Object.values(posts).sort((a, b) => logNoOf(b.url) - logNoOf(a.url));
 
   if (items.length === 0) {
     listEl.innerHTML = '';
@@ -56,15 +60,29 @@ async function copyUrl(url, button) {
 }
 
 function deleteItem(url) {
-  chrome.storage.local.get({ posts: {} }, ({ posts }) => {
-    delete posts[url];
-    chrome.storage.local.set({ posts });
-  });
+  try {
+    chrome.storage.local.get({ posts: {} }, ({ posts }) => {
+      delete posts[url];
+      chrome.storage.local.set({ posts });
+    });
+  } catch (err) {
+    showContextInvalidatedNotice();
+  }
 }
 
-chrome.storage.local.get({ posts: {} }, ({ posts }) => render(posts));
+function showContextInvalidatedNotice() {
+  listEl.innerHTML = '';
+  emptyStateEl.textContent = '확장 프로그램이 업데이트됐습니다. 이 패널을 닫았다가 다시 열어주세요.';
+  emptyStateEl.style.display = 'block';
+}
 
-chrome.storage.onChanged.addListener((changes, area) => {
-  if (area !== 'local' || !changes.posts) return;
-  render(changes.posts.newValue ?? {});
-});
+try {
+  chrome.storage.local.get({ posts: {} }, ({ posts }) => render(posts));
+
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area !== 'local' || !changes.posts) return;
+    render(changes.posts.newValue ?? {});
+  });
+} catch (err) {
+  showContextInvalidatedNotice();
+}
