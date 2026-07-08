@@ -59,9 +59,8 @@ chrome.runtime.onMessage.addListener(async (message, sender) => {
 });
 
 chrome.tabs.onActivated.addListener(({ tabId }) => {
-  emptyStateEl.textContent = '네이버 블로그 카테고리 페이지를 열어주세요.';
-  emptyStateEl.style.display = 'block';
-  listEl.innerHTML = '';
+  // 새 탭에 목록이 있으면 갱신되지만, 글쓰기 화면처럼 목록이 없는 페이지로 이동해도
+  // 마지막으로 본 목록을 그대로 유지한다 (글 쓰는 중에 참고용으로 계속 보여야 하므로).
   chrome.tabs.sendMessage(tabId, { type: 'REQUEST_LIST' }, () => {
     if (chrome.runtime.lastError) {
       // 네이버 블로그가 아닌 탭이면 content-script가 없어 에러가 나는 게 정상
