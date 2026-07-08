@@ -59,15 +59,8 @@ async function copyUrl(url, button) {
   }, 1000);
 }
 
-function deleteItem(url) {
-  try {
-    chrome.storage.local.get({ posts: {} }, ({ posts }) => {
-      delete posts[url];
-      chrome.storage.local.set({ posts });
-    });
-  } catch (err) {
-    showContextInvalidatedNotice();
-  }
+function isExtensionContextValid() {
+  return typeof chrome !== 'undefined' && !!chrome.runtime?.id;
 }
 
 function showContextInvalidatedNotice() {
@@ -76,13 +69,28 @@ function showContextInvalidatedNotice() {
   emptyStateEl.style.display = 'block';
 }
 
-try {
+function deleteItem(url) {
+  if (!isExtensionContextValid()) {
+    showContextInvalidatedNotice();
+    return;
+  }
+  chrome.storage.local.get({ posts: {} }, ({ posts }) => {
+    if (!isExtensionContextValid()) {
+      showContextInvalidatedNotice();
+      return;
+    }
+    delete posts[url];
+    chrome.storage.local.set({ posts });
+  });
+}
+
+if (!isExtensionContextValid()) {
+  showContextInvalidatedNotice();
+} else {
   chrome.storage.local.get({ posts: {} }, ({ posts }) => render(posts));
 
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'local' || !changes.posts) return;
     render(changes.posts.newValue ?? {});
   });
-} catch (err) {
-  showContextInvalidatedNotice();
 }
