@@ -1,8 +1,4 @@
-// 네이버 블로그 카테고리 페이지에서 게시글 제목/링크를 추출해 사이드패널로 전송
-
-let lastSentKey = null;
-let currentCategoryKey = null;
-const itemsMap = new Map();
+// 네이버 블로그 카테고리 페이지에서 게시글 제목/링크를 추출해 저장소(chrome.storage.local)에 누적
 
 function extractList() {
   return [...document.querySelectorAll('a.link.pcol2')]
@@ -13,64 +9,40 @@ function extractList() {
     .filter((item) => item.title && item.url);
 }
 
-function listKey(items) {
-  return items.map((i) => i.url).join('|');
+function saveItems(items) {
+  if (items.length === 0) return;
+
+  chrome.storage.local.get({ posts: {} }, ({ posts }) => {
+    let changed = false;
+    for (const item of items) {
+      if (!posts[item.url]) {
+        posts[item.url] = item;
+        changed = true;
+      }
+    }
+    if (changed) chrome.storage.local.set({ posts });
+  });
 }
 
-function getCategoryKey() {
-  const params = new URLSearchParams(location.search);
-  return `${params.get('blogId') ?? ''}::${params.get('categoryNo') ?? ''}::${location.pathname}`;
-}
-
-function sendListIfChanged() {
-  // 네이버 블로그 목록은 가상 스크롤이라 화면에 보이는 글만 DOM에 존재한다.
-  // 그래서 지금 보이는 것만 쓰지 않고, 한 번이라도 보인 글은 누적해서 기억한다.
-  const categoryKey = getCategoryKey();
-  if (categoryKey !== currentCategoryKey) {
-    currentCategoryKey = categoryKey;
-    itemsMap.clear();
-  }
-
-  for (const item of extractList()) {
-    itemsMap.set(item.url, item);
-  }
-
-  if (itemsMap.size === 0) return;
-
-  const items = [...itemsMap.values()];
-  const key = listKey(items);
-  if (key === lastSentKey) return;
-
-  lastSentKey = key;
-  chrome.runtime.sendMessage({ type: 'BLOG_LIST_UPDATE', items });
-}
-
-const debouncedSend = (() => {
+const debouncedSave = (() => {
   let timer = null;
   return () => {
     clearTimeout(timer);
-    timer = setTimeout(sendListIfChanged, 300);
+    timer = setTimeout(() => saveItems(extractList()), 300);
   };
 })();
 
-const observer = new MutationObserver(debouncedSend);
+const observer = new MutationObserver(debouncedSave);
 observer.observe(document.body, { childList: true, subtree: true });
 
 ['pushState', 'replaceState'].forEach((method) => {
   const original = history[method];
   history[method] = function (...args) {
     const result = original.apply(this, args);
-    debouncedSend();
+    debouncedSave();
     return result;
   };
 });
-window.addEventListener('popstate', debouncedSend);
+window.addEventListener('popstate', debouncedSave);
 
-chrome.runtime.onMessage.addListener((message) => {
-  if (message.type === 'REQUEST_LIST') {
-    lastSentKey = null;
-    sendListIfChanged();
-  }
-});
-
-sendListIfChanged();
+saveItems(extractList());

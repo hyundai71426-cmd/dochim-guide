@@ -3,7 +3,7 @@
   "name": "네이버 블로그 제목 목록 사이드패널",
   "version": "1.0.0",
   "description": "네이버 블로그 카테고리의 게시글 제목과 링크를 사이드패널에서 보고, 클릭 한 번으로 URL을 복사합니다.",
-  "permissions": ["sidePanel", "tabs"],
+  "permissions": ["sidePanel", "storage"],
   "host_permissions": ["https://blog.naver.com/*"],
   "background": {
     "service_worker": "background.js"

@@ -1,12 +1,14 @@
-// 사이드패널: content-script가 보낸 제목/링크 목록을 받아 렌더링
+// 사이드패널: 저장소(chrome.storage.local)에 누적된 제목/링크 목록을 렌더링
 
 const listEl = document.getElementById('list');
 const emptyStateEl = document.getElementById('empty-state');
 
-function renderList(items) {
-  if (!items || items.length === 0) {
+function render(posts) {
+  const items = Object.values(posts);
+
+  if (items.length === 0) {
     listEl.innerHTML = '';
-    emptyStateEl.textContent = '게시글이 없습니다.';
+    emptyStateEl.textContent = '아직 저장된 글이 없습니다. 네이버 블로그 카테고리 목록을 열어보세요.';
     emptyStateEl.style.display = 'block';
     return;
   }
@@ -26,8 +28,15 @@ function renderList(items) {
     copyBtn.textContent = '복사';
     copyBtn.addEventListener('click', () => copyUrl(item.url, copyBtn));
 
+    const deleteBtn = document.createElement('button');
+    deleteBtn.textContent = '✕';
+    deleteBtn.className = 'delete';
+    deleteBtn.title = '목록에서 삭제';
+    deleteBtn.addEventListener('click', () => deleteItem(item.url));
+
     li.appendChild(titleSpan);
     li.appendChild(copyBtn);
+    li.appendChild(deleteBtn);
     listEl.appendChild(li);
   }
 }
@@ -46,35 +55,16 @@ async function copyUrl(url, button) {
   }, 1000);
 }
 
-async function getActiveTabId() {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  return tab?.id;
+function deleteItem(url) {
+  chrome.storage.local.get({ posts: {} }, ({ posts }) => {
+    delete posts[url];
+    chrome.storage.local.set({ posts });
+  });
 }
 
-chrome.runtime.onMessage.addListener(async (message, sender) => {
-  if (message.type !== 'BLOG_LIST_UPDATE') return;
-  const activeTabId = await getActiveTabId();
-  if (sender.tab?.id !== activeTabId) return;
-  renderList(message.items);
-});
+chrome.storage.local.get({ posts: {} }, ({ posts }) => render(posts));
 
-chrome.tabs.onActivated.addListener(({ tabId }) => {
-  // 새 탭에 목록이 있으면 갱신되지만, 글쓰기 화면처럼 목록이 없는 페이지로 이동해도
-  // 마지막으로 본 목록을 그대로 유지한다 (글 쓰는 중에 참고용으로 계속 보여야 하므로).
-  chrome.tabs.sendMessage(tabId, { type: 'REQUEST_LIST' }, () => {
-    if (chrome.runtime.lastError) {
-      // 네이버 블로그가 아닌 탭이면 content-script가 없어 에러가 나는 게 정상
-    }
-  });
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area !== 'local' || !changes.posts) return;
+  render(changes.posts.newValue ?? {});
 });
-
-(async () => {
-  const activeTabId = await getActiveTabId();
-  if (activeTabId != null) {
-    chrome.tabs.sendMessage(activeTabId, { type: 'REQUEST_LIST' }, () => {
-      if (chrome.runtime.lastError) {
-        // 네이버 블로그가 아닌 탭이면 content-script가 없어 에러가 나는 게 정상
-      }
-    });
-  }
-})();
