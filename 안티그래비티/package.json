@@ -1,0 +1,28 @@
+{
+  "name": "urban-complex-guide-portal",
+  "version": "2.0.0",
+  "description": "도심복합개발 50부작 실전 지식 포털 및 백엔드 API (Cloudflare Pages & Workers 최적화)",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "node backend/server.js",
+    "build": "node scripts/build.js",
+    "deploy": "wrangler pages deploy frontend"
+  },
+  "keywords": [
+    "urban-development",
+    "real-estate",
+    "knowledge-portal",
+    "cloudflare-pages",
+    "adsense-ready"
+  ],
+  "author": "Urban Complex Team",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}
