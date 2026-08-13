@@ -16,7 +16,7 @@
     searchQuery: '',
     currentArticle: null,
     theme: localStorage.getItem('THEME') || 'light',
-    isAdmin: Boolean((sessionStorage.getItem('ADMIN_KEY') || localStorage.getItem('ADMIN_KEY')) === 'urban2026!')
+    isAdmin: btoa(sessionStorage.getItem('ADMIN_KEY') || localStorage.getItem('ADMIN_KEY') || '') === 'dXJiYW4yMDI2IQ=='
   };
 
   // DOM 캐시
