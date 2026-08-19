@@ -1,22 +1,32 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" class="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google-adsense-account" content="ca-pub-8197670104893130">
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-GCV92MJ5XS"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-GCV92MJ5XS');
+  </script>
   
   <!-- Primary SEO Meta Tags -->
   <title>도심복합개발 완벽 정복 백과사전 · 실전 지식 포털</title>
   <meta name="title" content="도심복합개발 완벽 정복 백과사전 · 실전 지식 포털">
-  <meta name="description" content="공공도심복합사업 및 민간도심복합개발의 법률, 역세권·준공업·저층주거 지정기준, 사업성 분석, 용적률 인센티브, 세제 혜택, 현금청산 대책 및 Q&A까지 완벽 정리한 전문 지식 포털">
+  <meta name="description" content="공공도심복합사업 및 민간도심복합개발의 법률, 역세권·준공업·저층주거 지정기준, 사업성 분석, 용적률 인센티브, 세제 혜택, 현금청산 대책 및 실무 Q&A까지 완벽 정리한 전문 지식 포털">
   <meta name="keywords" content="도심복합개발, 공공주택특별법, 역세권개발, 신속통합기획, 모아타운, 용적률상향, 현물선납, 우선공급권, 1+1분양, 정비사업, 부동산투자">
   <meta name="author" content="도심복합개발 연구팀">
   <meta name="robots" content="index, follow">
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://your-domain.com/">
+  <meta property="og:url" content="https://dochim.kr/">
   <meta property="og:title" content="도심복합개발 완벽 정복 백과사전 · 실전 지식 포털">
-  <meta property="og:description" content="복잡한 도심복합사업을 카드뉴스와 유기적 지식망, 실무 Q&A로 쉽고 명쾌하게 마스터하세요.">
+  <meta property="og:description" content="복잡한 도심복합사업을 에디토리얼 리더, 카드뉴스, 유기적 지식망, 실무 Q&A로 쉽고 명쾌하게 마스터하세요.">
   <meta property="og:locale" content="ko_KR">
 
   <!-- Twitter Card -->
@@ -24,14 +34,15 @@
   <meta property="twitter:title" content="도심복합개발 완벽 정복 백과사전">
   <meta property="twitter:description" content="도심복합개발 실무·투자·법률 완벽 가이드">
 
-  <!-- Google Fonts: Pretendard & Inter -->
-  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <!-- Google Fonts: Noto Serif KR (학술적 권위), Pretendard, Noto Sans KR, Inter, Public Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&family=Noto+Serif+KR:wght@600;700;900&family=Public+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
 
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="/css/style.css?v=3">
 
   <!-- Schema.org JSON-LD Structured Data for Google -->
   <script type="application/ld+json">
@@ -39,7 +50,7 @@
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "도심복합개발 지식 포털",
-    "url": "https://your-domain.com/",
+    "url": "https://dochim.kr/",
     "description": "도심복합개발 전문 실무 지식 및 법률 분석 포털",
     "publisher": {
       "@type": "Organization",
@@ -47,56 +58,62 @@
     },
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "https://your-domain.com/#search?q={search_term_string}",
+      "target": "https://dochim.kr/#search?q={search_term_string}",
       "query-input": "required name=search_term_string"
     }
   }
   </script>
 
-  <!-- Google AdSense Code (애드센스 승인 후 ca-pub 번호를 입력하세요) -->
+  <!-- Google AdSense Code -->
   <!-- 
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
   -->
 </head>
-<body>
+<body class="theme-light">
 
   <!-- Top Reading Progress Bar -->
   <div class="reading-progress-bar" id="readingProgress"></div>
 
-  <!-- Site Header -->
+  <!-- Site Header (Glassmorphic & Editorial Alexandria Theme) -->
   <header class="site-header">
     <div class="header-inner">
-      <a href="#home" class="brand-logo">
-        <span class="logo-badge">EXPERT GUIDE</span>
+      <a href="/" class="brand-logo" title="도심복합개발 포털 메인으로 이동">
+        <span class="logo-badge">
+          <span class="logo-dot"></span>
+          EXPERT GUIDE
+        </span>
         <span class="brand-title">도심복합개발 포털</span>
       </a>
 
       <nav class="header-nav">
-        <a href="#home" class="nav-link">전체 연재</a>
-        <a href="#about" class="nav-link">소개 (About)</a>
-        <a href="#privacy" class="nav-link">개인정보처리방침</a>
-        <a href="#terms" class="nav-link">이용약관</a>
-        <a href="#contact" class="nav-link">문의하기</a>
+        <a href="/" class="nav-link">전체 연재</a>
+        <a href="/about" class="nav-link">소개 (About)</a>
+        <a href="/privacy" class="nav-link">개인정보처리방침</a>
+        <a href="/terms" class="nav-link">이용약관</a>
+        <a href="/contact" class="nav-link">문의하기</a>
       </nav>
 
       <div class="header-actions">
-        <button class="btn-header" id="btnOpenGraph" title="지식 연결망 시각화">
-          🕸️ 지식망
+        <button class="btn-header btn-header-accent" id="btnOpenGraph" title="지식 연결망 시각화">
+          <span class="material-symbols-outlined icon-sm">hub</span>
+          <span>지식망</span>
         </button>
         <button class="btn-header" id="btnOpenPublish" title="새 글 작성" style="display: none;">
-          ✍️ 글쓰기
+          <span class="material-symbols-outlined icon-sm">edit_square</span>
+          <span>글쓰기</span>
         </button>
         <button class="btn-header" id="btnAdminToggle" title="관리자 모드">
-          🔒 관리자
+          <span class="material-symbols-outlined icon-sm">lock</span>
+          <span>관리자</span>
         </button>
-        <button class="btn-header" id="themeToggleBtn" title="테마 변경">
-          🌙 다크모드
+        <button class="btn-header btn-icon-only" id="themeToggleBtn" title="다크/라이트 모드 전환">
+          <span class="material-symbols-outlined icon-sm" id="themeIcon">dark_mode</span>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- Main Content Wrapper (800px Max-Width Reader Optimized) -->
+  <!-- Main Content Wrapper (Max 1280px Container, 800px Reader Column) -->
   <main class="main-wrapper" id="mainContainer">
     <!-- Rendered dynamically by app.js -->
   </main>
@@ -105,94 +122,111 @@
   <footer class="site-footer">
     <div class="footer-inner">
       <div class="footer-brand">
-        <h4>🏛️ 도심복합개발 실전 지식 포털</h4>
-        <p>
-          복잡한 도시정비제도와 공공주택특별법을 누구나 쉽게 이해할 수 있도록 돕는 실전 지식 아카이브입니다.
+        <div class="footer-brand-header">
+          <span class="footer-badge">URBAN COMPLEX KNOWLEDGE PORTAL</span>
+          <h4>🏛️ 도심복합개발 백과사전</h4>
+        </div>
+        <p class="footer-brand-desc">
+          복잡한 도시정비제도, 공공주택특별법, 세제 감면 및 사업성 분석 정보를 누구나 쉽게 이해할 수 있도록 체계화한 대한민국 표준 실전 지식 아카이브입니다.
         </p>
+        <div class="footer-org-info">
+          <strong>현대공인중개사사무소</strong><br>
+          서울특별시 서초구 반포동 714-26 1층<br>
+          대표: 백명건 &nbsp;|&nbsp; 등록번호: 11650-2016-00300
+        </div>
       </div>
 
       <div class="footer-col">
-        <h5>바로가기</h5>
+        <h5>지식 카테고리</h5>
         <ul class="footer-links">
-          <li><a href="#home">전체 연재 목록</a></li>
-          <li><a href="#about">포털 소개 (About Us)</a></li>
-          <li><a href="#contact">문의 및 제휴 (Contact)</a></li>
-          <li><a href="sitemap.xml" target="_blank">XML 사이트맵</a></li>
-          <li><a href="javascript:void(0)" id="footerAdminBtn" style="color: #64748B;">🔒 관리자 인증</a></li>
+          <li><a href="/" onclick="window.filterCategory && window.filterCategory('part-1')">PART 1. 개념과 제도 도입 배경</a></li>
+          <li><a href="/" onclick="window.filterCategory && window.filterCategory('part-3')">PART 3. 추진 절차와 주민 동의</a></li>
+          <li><a href="/" onclick="window.filterCategory && window.filterCategory('part-4')">PART 4. 핵심 혜택과 인센티브</a></li>
+          <li><a href="/" onclick="window.filterCategory && window.filterCategory('part-6')">PART 6. 투자자와 무주택자 가이드</a></li>
+          <li><a href="/" onclick="window.filterCategory && window.filterCategory('part-7')">PART 7. 전국 주요 후보지 심층 분석</a></li>
         </ul>
       </div>
 
       <div class="footer-col">
-        <h5>정책 및 법적 고지</h5>
+        <h5>포털 정보 & 정책</h5>
         <ul class="footer-links">
-          <li><a href="#privacy">개인정보처리방침</a></li>
-          <li><a href="#terms">이용약관 및 면책조항</a></li>
-          <li><a href="#terms">저작권 보호 정책</a></li>
+          <li><a href="/about">포털 소개 (About Us)</a></li>
+          <li><a href="/contact">문의 및 제휴 (Contact)</a></li>
+          <li><a href="/privacy">개인정보처리방침 (Privacy Policy)</a></li>
+          <li><a href="/terms">이용약관 및 면책조항</a></li>
+          <li><a href="/sitemap.xml" target="_blank">XML 사이트맵</a></li>
+          <li><a href="javascript:void(0)" id="footerAdminBtn" class="link-admin-auth">🔒 관리자 인증</a></li>
         </ul>
       </div>
     </div>
 
     <div class="footer-bottom">
-      <p>© 2026 Urban Complex Development Portal. All rights reserved.</p>
-      <p style="margin-top: 0.3rem;">본 사이트의 콘텐츠는 정보 제공 목적이며, 개별적인 법률 및 세무 자문은 전문가와 상담하시기 바랍니다.</p>
+      <div class="footer-bottom-inner">
+        <p>© 2026 현대공인중개사사무소 · 도심복합개발 연구팀. All rights reserved.</p>
+        <p class="footer-disclaimer">본 포털의 모든 콘텐츠는 공공 정보 및 실무 연구 자료를 바탕으로 작성되었으며, 개별적인 법률·세무·투자 판단 시에는 전문가와 최종 확인하시기 바랍니다.</p>
+      </div>
     </div>
   </footer>
 
   <!-- Modal: Admin Login -->
   <div class="modal-overlay" id="adminModal">
-    <div class="modal-content" style="max-width: 420px; text-align: center;">
-      <button class="modal-close" id="btnCloseAdmin">&times;</button>
-      <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🔒</div>
-      <h2 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 0.4rem;">관리자 인증</h2>
-      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.2rem;">
-        글 작성 및 수정 권한을 활성화하려면 관리자 비밀번호를 입력하세요.
+    <div class="modal-content modal-content-sm">
+      <button class="modal-close" id="btnCloseAdmin" aria-label="닫기">&times;</button>
+      <div class="modal-icon-badge">🔒</div>
+      <h2 class="modal-title">관리자 인증</h2>
+      <p class="modal-subtitle">
+        글 작성 및 실시간 CMS 수정 권한을 활성화하려면 관리자 암호를 입력하세요.
       </p>
       
       <form id="adminLoginForm">
-        <div class="form-group" style="text-align: left; margin-bottom: 1rem;">
-          <label class="form-label">관리자 비밀번호</label>
-          <input type="password" id="adminPasswordInput" class="form-input" placeholder="비밀번호 입력 (기본: urban2026!)" required>
+        <div class="form-group">
+          <label class="form-label" for="adminPasswordInput">관리자 비밀번호</label>
+          <input type="password" id="adminPasswordInput" class="form-input" placeholder="관리자 비밀번호를 입력하세요" required autocomplete="current-password">
         </div>
-        <div id="adminLoginError" style="color: #EF4444; font-size: 0.82rem; margin-bottom: 0.8rem; display: none;">비밀번호가 일치하지 않습니다.</div>
-        <button type="submit" class="btn-submit" style="width: 100%;">관리자 모드 활성화</button>
+        <div id="adminLoginError" class="form-error-msg" style="display: none;">비밀번호가 일치하지 않습니다.</div>
+        <button type="submit" class="btn-submit btn-full">관리자 모드 활성화</button>
       </form>
     </div>
   </div>
 
-  <!-- Modal: Knowledge Graph Explorer -->
+  <!-- Modal: Knowledge Graph Explorer (Stitch Alexandria Map UI) -->
   <div class="modal-overlay" id="graphModal">
-    <div class="modal-content">
-      <button class="modal-close" id="btnCloseGraph">&times;</button>
+    <div class="modal-content modal-content-graph">
+      <button class="modal-close" id="btnCloseGraph" aria-label="닫기">&times;</button>
       
       <div class="graph-top-bar">
-        <div>
-          <h2 style="font-size: 1.3rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem;">
-            <span>🕸️</span> 지식 연결망 인터랙티브 탐색기
+        <div class="graph-top-title">
+          <h2>
+            <span class="material-symbols-outlined icon-md">hub</span>
+            도심복합개발 지식 연결망 시각화
           </h2>
-          <p style="font-size: 0.82rem; color: var(--text-muted);">
-            노드를 클릭하면 해당 글로 바로 이동합니다. 마우스 드래그로 이동, 휠로 확대/축소 가능합니다.
+          <p>
+            50개 실전 아티클의 유기적 상호 연결 구조를 인터랙티브하게 탐색합니다. 노드를 클릭하면 상세 아티클로 이동합니다.
           </p>
         </div>
         
         <div class="graph-controls-bar">
-          <input type="text" id="graphSearchInput" class="graph-search-input" placeholder="🔍 글 제목/번호 검색...">
-          <button class="btn-header" id="btnZoomInGraph" title="확대">➕</button>
-          <button class="btn-header" id="btnZoomOutGraph" title="축소">➖</button>
-          <button class="btn-header" id="btnResetGraph" title="화면 리셋">🔄 리셋</button>
+          <div class="graph-search-box">
+            <span class="material-symbols-outlined icon-sm">search</span>
+            <input type="text" id="graphSearchInput" class="graph-search-input" placeholder="글 제목/키워드 검색...">
+          </div>
+          <button class="btn-graph-tool" id="btnZoomInGraph" title="확대">➕</button>
+          <button class="btn-graph-tool" id="btnZoomOutGraph" title="축소">➖</button>
+          <button class="btn-graph-tool" id="btnResetGraph" title="화면 리셋">🔄 리셋</button>
         </div>
       </div>
 
       <!-- 카테고리 필터 탭 -->
       <div class="graph-filter-tabs" id="graphCatFilters">
-        <button class="graph-filter-btn active" data-cat="all">전체망</button>
-        <button class="graph-filter-btn" data-cat="part-1">1. 개념</button>
-        <button class="graph-filter-btn" data-cat="part-2">2. 비교</button>
-        <button class="graph-filter-btn" data-cat="part-3">3. 절차</button>
-        <button class="graph-filter-btn" data-cat="part-4">4. 혜택</button>
-        <button class="graph-filter-btn" data-cat="part-5">5. 갈등</button>
-        <button class="graph-filter-btn" data-cat="part-6">6. 투자</button>
-        <button class="graph-filter-btn" data-cat="part-7">7. 후보지</button>
-        <button class="graph-filter-btn" data-cat="part-8">8. 미래</button>
+        <button class="graph-filter-btn active" data-cat="all">전체 지식망</button>
+        <button class="graph-filter-btn" data-cat="part-1">1. 개념·도입</button>
+        <button class="graph-filter-btn" data-cat="part-2">2. 사업 비교</button>
+        <button class="graph-filter-btn" data-cat="part-3">3. 절차·동의</button>
+        <button class="graph-filter-btn" data-cat="part-4">4. 혜택·인센티브</button>
+        <button class="graph-filter-btn" data-cat="part-5">5. 갈등·보상</button>
+        <button class="graph-filter-btn" data-cat="part-6">6. 투자·가이드</button>
+        <button class="graph-filter-btn" data-cat="part-7">7. 주요 후보지</button>
+        <button class="graph-filter-btn" data-cat="part-8">8. 미래 전망</button>
       </div>
 
       <!-- 캔버스 및 툴팁 영역 -->
@@ -205,19 +239,19 @@
 
   <!-- Modal: New Article Publish -->
   <div class="modal-overlay" id="publishModal">
-    <div class="modal-content" style="max-width: 650px;">
-      <button class="modal-close" id="btnClosePublish">&times;</button>
-      <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 0.5rem;">✍️ 신규 연재 글 추가 발행</h2>
-      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">작성된 글은 포털 지식망에 즉시 편입되어 연결됩니다.</p>
+    <div class="modal-content modal-content-md">
+      <button class="modal-close" id="btnClosePublish" aria-label="닫기">&times;</button>
+      <h2 class="modal-title">✍️ 신규 연재 아티클 발행</h2>
+      <p class="modal-subtitle">작성된 글은 포털 지식망과 아카이브에 즉시 연동됩니다.</p>
       
       <form id="publishForm" class="contact-form">
         <div class="form-group">
-          <label class="form-label">제목 *</label>
+          <label class="form-label" for="newPostTitle">제목 *</label>
           <input type="text" id="newPostTitle" class="form-input" placeholder="예: [심층분석] 신규 도심복합 후보지 선정 기준" required>
         </div>
 
         <div class="form-group">
-          <label class="form-label">카테고리</label>
+          <label class="form-label" for="newPostCategory">카테고리</label>
           <select id="newPostCategory" class="form-input">
             <option value="PART 1. 개념과 제도 도입 배경">PART 1. 개념과 제도 도입 배경</option>
             <option value="PART 2. 기존 정비사업과의 비교">PART 2. 기존 정비사업과의 비교</option>
@@ -231,44 +265,44 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">3초 핵심 요약 *</label>
+          <label class="form-label" for="newPostSummary">3초 핵심 요약 *</label>
           <input type="text" id="newPostSummary" class="form-input" placeholder="글의 핵심 내용을 한 줄로 요약해 주세요" required>
         </div>
 
         <div class="form-group">
-          <label class="form-label">태그 (쉼표로 구분)</label>
-          <input type="text" id="newPostTags" class="form-input" placeholder="도심복합, 분담금, 후보지">
+          <label class="form-label" for="newPostTags">태그 (쉼표 구분)</label>
+          <input type="text" id="newPostTags" class="form-input" placeholder="도심복합, 분담금, 용적률, 후보지">
         </div>
 
         <div class="form-group">
-          <label class="form-label">본문 내용 (마크다운 형식) *</label>
-          <textarea id="newPostContent" class="form-textarea" style="min-height: 180px;" placeholder="본문 내용을 입력하세요. (## 대제목, ### 소제목, * 목록 등 지원)" required></textarea>
+          <label class="form-label" for="newPostContent">본문 내용 (마크다운) *</label>
+          <textarea id="newPostContent" class="form-textarea" style="min-height: 180px;" placeholder="## 대제목, ### 소제목, - 목록 등 마크다운 형식으로 작성하세요." required></textarea>
         </div>
 
-        <button type="submit" class="btn-submit">새 글 발행하기</button>
+        <button type="submit" class="btn-submit btn-full">새 글 발행하기</button>
       </form>
     </div>
   </div>
 
-  <!-- Modal: Article Edit (글 직접 수정 CMS) -->
+  <!-- Modal: Article Edit (실시간 CMS 수정) -->
   <div class="modal-overlay" id="editModal">
-    <div class="modal-content" style="max-width: 750px; max-height: 90vh; overflow-y: auto;">
-      <button class="modal-close" id="btnCloseEdit">&times;</button>
-      <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 0.5rem;">✏️ 글 내용 직접 수정 (실시간 CMS)</h2>
-      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">
-        제목, 3초 요약, 마크다운 본문, 태그를 실시간으로 직접 수정하고 저장할 수 있습니다.
+    <div class="modal-content modal-content-lg">
+      <button class="modal-close" id="btnCloseEdit" aria-label="닫기">&times;</button>
+      <h2 class="modal-title">✏️ 글 내용 직접 수정 (실시간 CMS)</h2>
+      <p class="modal-subtitle">
+        제목, 3초 요약, 마크다운 본문, 태그를 실시간으로 직접 수정하고 저장합니다.
       </p>
       
       <form id="editForm" class="contact-form">
         <input type="hidden" id="editPostId">
         
         <div class="form-group">
-          <label class="form-label">제목 *</label>
+          <label class="form-label" for="editPostTitle">제목 *</label>
           <input type="text" id="editPostTitle" class="form-input" required>
         </div>
 
         <div class="form-group">
-          <label class="form-label">카테고리</label>
+          <label class="form-label" for="editPostCategory">카테고리</label>
           <select id="editPostCategory" class="form-input">
             <option value="PART 1. 개념과 제도 도입 배경" data-cat="part-1">PART 1. 개념과 제도 도입 배경</option>
             <option value="PART 2. 기존 정비사업과의 비교" data-cat="part-2">PART 2. 기존 정비사업과의 비교</option>
@@ -282,21 +316,21 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">3초 핵심 요약 *</label>
+          <label class="form-label" for="editPostSummary">3초 핵심 요약 *</label>
           <input type="text" id="editPostSummary" class="form-input" required>
         </div>
 
         <div class="form-group">
-          <label class="form-label">태그 (쉼표로 구분)</label>
+          <label class="form-label" for="editPostTags">태그 (쉼표 구분)</label>
           <input type="text" id="editPostTags" class="form-input">
         </div>
 
         <div class="form-group">
-          <label class="form-label">본문 내용 (마크다운 지원: ## 제목, ### 소제목, - 목록 등) *</label>
+          <label class="form-label" for="editPostContent">본문 내용 (마크다운 지원) *</label>
           <textarea id="editPostContent" class="form-textarea" style="min-height: 240px; font-family: monospace; font-size: 0.9rem;" required></textarea>
         </div>
 
-        <div style="display: flex; gap: 0.8rem; justify-content: flex-end; margin-top: 1rem;">
+        <div style="display: flex; gap: 0.8rem; justify-content: flex-end; margin-top: 1.5rem;">
           <button type="button" class="btn-header" id="btnCancelEdit">취소</button>
           <button type="submit" class="btn-submit">💾 수정사항 저장하기</button>
         </div>
@@ -305,10 +339,10 @@
   </div>
 
   <!-- Scripts -->
-  <script src="js/articles_data.js"></script>
-  <script src="js/api.js"></script>
-  <script src="js/graph.js"></script>
-  <script src="js/app.js"></script>
+  <script src="/js/articles_data.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/graph.js"></script>
+  <script src="/js/app.js"></script>
 
 </body>
 </html>

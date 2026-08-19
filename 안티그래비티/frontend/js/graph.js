@@ -12,16 +12,16 @@ class KnowledgeGraph {
     this.categories = categories || [];
     this.onNodeClick = onNodeClick;
 
-    // 카테고리별 컬러 팔레트 & 라벨
+    // 카테고리별 컬러 팔레트 & 라벨 (Stitch Urban Composite Palette)
     this.categoryInfo = {
-      'part-1': { color: '#3B82F6', name: '1. 개념/제도' },
-      'part-2': { color: '#8B5CF6', name: '2. 사업 비교' },
-      'part-3': { color: '#10B981', name: '3. 절차/동의' },
-      'part-4': { color: '#F59E0B', name: '4. 혜택/인센티브' },
-      'part-5': { color: '#EF4444', name: '5. 갈등/보상' },
-      'part-6': { color: '#06B6D4', name: '6. 투자/자격' },
-      'part-7': { color: '#EC4899', name: '7. 주요 후보지' },
-      'part-8': { color: '#6366F1', name: '8. 미래 전망' }
+      'part-1': { color: '#1A365D', name: '1. 개념·제도' },
+      'part-2': { color: '#0051D5', name: '2. 사업 비교' },
+      'part-3': { color: '#10B981', name: '3. 절차·동의' },
+      'part-4': { color: '#D97706', name: '4. 혜택·인센티브' },
+      'part-5': { color: '#DC2626', name: '5. 갈등·보상' },
+      'part-6': { color: '#0284C7', name: '6. 투자·가이드' },
+      'part-7': { color: '#7C3AED', name: '7. 주요 후보지' },
+      'part-8': { color: '#0D9488', name: '8. 미래 전망' }
     };
 
     this.nodes = [];

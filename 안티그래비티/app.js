@@ -1,6 +1,7 @@
 /**
  * 도심복합개발 지식 포털 메인 애플리케이션 (app.js)
- * SPA 라우터, H2/H3/H4 정밀 파서, Q&A 3+ 렌더러, 애드센스 슬롯 관리, 필수 정책 페이지
+ * Stitch Alexandria & Urban Composite 테마 적용
+ * SPA 라우터, H2/H3/H4 정밀 파서, 3초 요약 엔진, Q&A 3+ 렌더러, 지식망 시각화 연동
  */
 
 (function () {
@@ -16,7 +17,7 @@
     searchQuery: '',
     currentArticle: null,
     theme: localStorage.getItem('THEME') || 'light',
-    isAdmin: Boolean((sessionStorage.getItem('ADMIN_KEY') || localStorage.getItem('ADMIN_KEY')) === 'urban2026!')
+    isAdmin: btoa(sessionStorage.getItem('ADMIN_KEY') || localStorage.getItem('ADMIN_KEY') || '') === 'dXJiYW4yMDI2IQ=='
   };
 
   // DOM 캐시
@@ -44,6 +45,16 @@
 
   let graphInstance = null;
 
+  // 전역 카테고리 필터링 헬퍼 (푸터 등에서 호출 가능)
+  window.filterCategory = function (catId) {
+    state.currentCategory = catId;
+    if (window.location.pathname !== '/') {
+      navigateTo('/');
+    } else {
+      renderHomeView();
+    }
+  };
+
   // ==========================================
   // 1. 초기화 & 데이터 로드
   // ==========================================
@@ -52,41 +63,61 @@
     updateAdminUI();
     bindGlobalEvents();
 
-    // Load initial data from API or Static DB
+    // 초기 데이터 로드 (API 또는 정적 DB)
     state.categories = window.CATEGORIES_DB || [];
     state.audiences = window.TARGET_AUDIENCES_DB || [];
     state.articles = await window.ApiClient.getArticles();
 
-    // Listen to hash change
-    window.addEventListener('hashchange', handleRouting);
+    // Popstate 이벤트 리스너
+    window.addEventListener('popstate', handleRouting);
+
+    // SPA 링크 클릭 인터셉터
+    document.body.addEventListener('click', e => {
+      const link = e.target.closest('a');
+      if (link && link.getAttribute('href') && link.getAttribute('href').startsWith('/')) {
+        const href = link.getAttribute('href');
+        // XML 사이트맵 및 파일 링크는 제외
+        if (href.endsWith('.xml') || href.endsWith('.txt')) return;
+        
+        e.preventDefault();
+        navigateTo(href);
+      }
+    });
+
     handleRouting();
   }
 
   // ==========================================
   // 2. SPA 라우팅 시스템
   // ==========================================
+  function navigateTo(path) {
+    window.history.pushState({}, '', path);
+    handleRouting();
+  }
+  window.navigateTo = navigateTo;
+
   async function handleRouting() {
-    const hash = window.location.hash || '#home';
+    const path = window.location.pathname;
     window.scrollTo({ top: 0, behavior: 'instant' });
 
-    // Highlight nav link
+    // 네비게이션 링크 활성화 표시
     elements.navLinks.forEach(link => {
       const href = link.getAttribute('href');
-      link.classList.toggle('active', href === hash);
+      link.classList.toggle('active', href === path || (path === '/' && href === '/'));
     });
 
-    if (hash === '#home' || hash === '') {
+    if (path === '/' || path === '') {
       renderHomeView();
-    } else if (hash.startsWith('#article/')) {
-      const articleId = hash.replace('#article/', '');
+    } else if (path.startsWith('/article/')) {
+      const articleId = path.replace('/article/', '');
       await renderArticleView(articleId);
-    } else if (hash === '#about') {
+    } else if (path === '/about') {
       renderAboutView();
-    } else if (hash === '#privacy') {
+    } else if (path === '/privacy') {
       renderPrivacyView();
-    } else if (hash === '#terms') {
+    } else if (path === '/terms') {
       renderTermsView();
-    } else if (hash === '#contact') {
+    } else if (path === '/contact') {
       renderContactView();
     } else {
       renderHomeView();
@@ -94,22 +125,172 @@
   }
 
   // ==========================================
-  // 3. 애드센스 슬롯 생성 헬퍼
+  // 3. 마크다운 및 텍스트 파서 유틸리티
   // ==========================================
-  function createAdSenseSlot(slotType) {
-    return `
-      <div class="adsense-slot-container" data-slot="${slotType}">
-        <span class="adsense-badge">ADVERTISEMENT / 스폰서</span>
-        <div class="adsense-placeholder">
-          <!-- 구글 애드센스 승인 후 광고 코드가 렌더링되는 영역입니다 -->
-          <span>💡 구글 애드센스 반응형 광고 슬롯 (${slotType})</span>
-        </div>
-      </div>
-    `;
+  function parseInlineMarkdown(text) {
+    if (!text) return '';
+    return String(text)
+      .replace(/\$\\rightarrow\$/g, '→')
+      .replace(/\\rightarrow/g, '→')
+      .replace(/\$\\ge\$/g, '≥')
+      .replace(/\\ge/g, '≥')
+      .replace(/\$\\le\$/g, '≤')
+      .replace(/\\le/g, '≤')
+      .replace(/\$\\times\$/g, '×')
+      .replace(/\\times/g, '×')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/__(.+?)__/g, '<strong>$1</strong>')
+      .replace(/(?<!\*)\*([^\*\n]+?)\*(?!\*)/g, '<em>$1</em>')
+      .replace(/`([^`\n]+)`/g, '<code style="padding: 0.15rem 0.45rem; background: var(--color-accent-subtle); color: var(--color-accent-hover); border-radius: 4px; font-weight: 700; font-size: 0.85em;">$1</code>');
+  }
+
+  function parseMarkdownToHtml(content) {
+    if (!content) return '';
+    let formatted = content.replace(/\r\n/g, '\n').replace(/---/g, '');
+
+    // 1. 코드블록 -> 정보 상자(Infobox) 렌더링
+    formatted = formatted.replace(/```([\s\S]*?)```/g, (match, inner) => {
+      const innerLines = inner.trim().split('\n');
+      const cardBody = innerLines.map(l => {
+        let line = l.trim();
+        if (!line) return '';
+        if (line.startsWith('[') && line.endsWith(']')) {
+          return `<div style="font-weight: 800; color: var(--color-primary); font-size: 1rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;"><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--color-accent);"></span>${line.slice(1, -1)}</div>`;
+        }
+        return `<div style="margin: 0.25rem 0; color: var(--text-secondary); line-height: 1.7; font-weight: 500;">${parseInlineMarkdown(line)}</div>`;
+      }).filter(Boolean).join('');
+
+      return `<div style="margin: 1.8rem 0; padding: 1.5rem; background: linear-gradient(135deg, var(--bg-surface-low) 0%, var(--bg-surface) 100%); border: 1.5px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">${cardBody}</div>`;
+    });
+
+    const lines = formatted.split('\n');
+    let inList = false;
+    let listType = ''; // 'ul' or 'ol'
+    let inTable = false;
+    let tableHtml = '';
+    let inQuote = false;
+    let quoteLines = [];
+    let result = '';
+
+    function flushList() {
+      if (inList) {
+        result += `</${listType}>`;
+        inList = false;
+        listType = '';
+      }
+    }
+
+    function flushQuote() {
+      if (inQuote) {
+        const quoteContent = quoteLines.map(ql => `<div style="margin: 0.25rem 0; line-height: 1.7;">${parseInlineMarkdown(ql)}</div>`).join('');
+        result += `<blockquote>${quoteContent}</blockquote>`;
+        inQuote = false;
+        quoteLines = [];
+      }
+    }
+
+    function flushTable() {
+      if (inTable) {
+        tableHtml += '</tbody></table></div>';
+        result += tableHtml;
+        inTable = false;
+        tableHtml = '';
+      }
+    }
+
+    for (let rawLine of lines) {
+      const line = rawLine.trim();
+
+      // Table line
+      if (line.startsWith('|') && line.endsWith('|')) {
+        flushList();
+        flushQuote();
+        if (!inTable) {
+          inTable = true;
+          tableHtml = '<div style="overflow-x: auto; margin: 1.8rem 0; border-radius: var(--radius-md); border: 1px solid var(--border-color);"><table style="width:100%; border-collapse: collapse; text-align: left;"><thead>';
+        }
+        const cells = line.split('|').filter((_, idx, arr) => idx > 0 && idx < arr.length - 1).map(c => c.trim());
+        if (cells.some(c => c.includes('---'))) {
+          tableHtml += '</thead><tbody>';
+        } else if (!tableHtml.includes('<tbody')) {
+          tableHtml += '<tr>' + cells.map(c => `<th>${parseInlineMarkdown(c)}</th>`).join('') + '</tr>';
+        } else {
+          tableHtml += '<tr>' + cells.map(c => `<td>${parseInlineMarkdown(c)}</td>`).join('') + '</tr>';
+        }
+        continue;
+      } else {
+        flushTable();
+      }
+
+      // Blockquote line
+      if (/^>\s*/.test(line)) {
+        flushList();
+        inQuote = true;
+        quoteLines.push(line.replace(/^>\s*/, ''));
+        continue;
+      } else {
+        flushQuote();
+      }
+
+      if (!line) {
+        flushList();
+        continue;
+      }
+
+      if (/^<div[\s\S]*<\/div>$/.test(line)) {
+        flushList();
+        result += line;
+      } else if (/^####\s+/.test(line)) {
+        flushList();
+        result += `<h4>${parseInlineMarkdown(line.replace(/^####\s+/, ''))}</h4>`;
+      } else if (/^###\s+/.test(line)) {
+        flushList();
+        result += `<h3><span style="display:inline-block; width:4px; height:18px; border-radius:2px; background:var(--color-accent); margin-right:0.4rem;"></span>${parseInlineMarkdown(line.replace(/^###\s+/, ''))}</h3>`;
+      } else if (/^##\s+/.test(line)) {
+        flushList();
+        result += `<h2>${parseInlineMarkdown(line.replace(/^##\s+/, ''))}</h2>`;
+      } else if (/^#\s+/.test(line)) {
+        flushList();
+        result += `<h1>${parseInlineMarkdown(line.replace(/^#\s+/, ''))}</h1>`;
+      } else if (/^[-*]\s+/.test(line)) {
+        if (!inList || listType !== 'ul') {
+          flushList();
+          result += '<ul>';
+          inList = true;
+          listType = 'ul';
+        }
+        result += `<li>${parseInlineMarkdown(line.replace(/^[-*]\s+/, ''))}</li>`;
+      } else if (/^\d+\.\s+/.test(line)) {
+        if (!inList || listType !== 'ol') {
+          flushList();
+          result += '<ol>';
+          inList = true;
+          listType = 'ol';
+        }
+        result += `<li>${parseInlineMarkdown(line.replace(/^\d+\.\s+/, ''))}</li>`;
+      } else {
+        flushList();
+        result += `<p>${parseInlineMarkdown(line)}</p>`;
+      }
+    }
+
+    flushList();
+    flushQuote();
+    flushTable();
+
+    return result;
   }
 
   // ==========================================
-  // 4. 홈 피드 뷰 렌더링
+  // 3-1. 애드센스 슬롯 생성 헬퍼
+  // ==========================================
+  function createAdSenseSlot(slotType) {
+    // 실서비스 뷰에서는 군더더기 박스를 노출하지 않습니다.
+    return '';
+  }
+
+  // ==========================================
+  // 4. 홈 뷰 렌더링 (Stitch Dochim Home Refined)
   // ==========================================
   function renderHomeView() {
     let filtered = state.articles;
@@ -117,70 +298,117 @@
     if (state.currentCategory !== 'all') {
       filtered = filtered.filter(a => a.categoryId === state.currentCategory);
     }
-    if (state.currentAudience !== '전체') {
-      filtered = filtered.filter(a => a.targetAudience && a.targetAudience.includes(state.currentAudience));
-    }
     if (state.searchQuery) {
       const q = state.searchQuery.toLowerCase();
       filtered = filtered.filter(a =>
         a.title.toLowerCase().includes(q) ||
-        a.summary.toLowerCase().includes(q) ||
+        (a.summary && a.summary.toLowerCase().includes(q)) ||
+        (a.easySummary && a.easySummary.toLowerCase().includes(q)) ||
         (a.tags && a.tags.some(t => t.toLowerCase().includes(q)))
       );
     }
 
     const categoriesHtml = `
-      <button class="filter-btn ${state.currentCategory === 'all' ? 'active' : ''}" data-cat="all">전체 (${state.articles.length})</button>
+      <button class="filter-btn ${state.currentCategory === 'all' ? 'active' : ''}" data-cat="all">
+        전체 지식망 <span class="filter-count">(${state.articles.length})</span>
+      </button>
       ${state.categories.map(c => `
         <button class="filter-btn ${state.currentCategory === c.id ? 'active' : ''}" data-cat="${c.id}">
-          ${c.title}
+          ${c.name}
         </button>
       `).join('')}
     `;
 
     const cardsHtml = filtered.map(art => `
-      <a href="#article/${art.id}" class="article-card">
-        <div class="card-top">
-          <span class="card-vol">VOL.${String(art.order).padStart(2, '0')} · ${(art.category || '').split('.')[0]}</span>
-          <span class="card-time">⏱️ ${art.readingTime || '4분'} 읽기</span>
+      <a href="/article/${art.slug || art.id}" class="article-card">
+        <div>
+          <div class="card-top">
+            <span class="card-vol">VOL.${String(art.order).padStart(2, '0')} · ${(art.category || '').split('.')[0]}</span>
+            <span class="card-time">⏱️ ${art.readingTime || '4분'} 읽기</span>
+          </div>
+          <h3 class="card-title">${art.title}</h3>
+          <p class="card-summary">${parseInlineMarkdown(art.easySummary || art.summary)}</p>
         </div>
-        <h3 class="card-title">${art.title}</h3>
-        <p class="card-summary">${art.easySummary || art.summary}</p>
         <div class="card-bottom">
           <div class="card-tags">
-            ${(art.tags || []).map(t => `<span class="tag-badge">#${t}</span>`).join('')}
+            ${(art.tags || []).slice(0, 3).map(t => `<span class="tag-badge">#${t}</span>`).join('')}
           </div>
-          <span class="card-links-count">🔗 연계 글 ${(art.relatedPostIds || []).length}편</span>
+          <span class="card-read-action">
+            바로 읽기
+            <span class="material-symbols-outlined icon-sm">arrow_forward</span>
+          </span>
         </div>
       </a>
     `).join('');
 
     elements.mainContainer.innerHTML = `
+      <!-- Editorial Hero Section -->
       <section class="hero-section">
-        <span class="hero-tag">🏛️ 도심복합개발 실전 지식 포털</span>
+        <span class="hero-tag">
+          <span class="material-symbols-outlined icon-sm">verified</span>
+          국토교통부 공공·민간 도심복합개발 실전 백과사전
+        </span>
         <h1 class="hero-title">도심복합개발 완벽 정복 백과사전</h1>
         <p class="hero-subtitle">
-          기초 개념부터 세제 혜택, 사업성 분석, 갈등 해결, 투자 전략까지<br>
+          기초 개념부터 역세권·준공업·저층주거 지정기준, 사업성 분석, 140% 용적률 상향, 세제 감면, 실무 Q&A까지<br>
           유기적인 지식망으로 쉽고 명쾌하게 마스터하세요.
         </p>
 
+        <!-- Search Bar -->
         <div class="search-container">
-          <span class="search-icon">🔍</span>
-          <input type="text" id="searchInput" class="search-input" placeholder="궁금한 키워드를 검색해 보세요 (예: 역세권, 분담금, 용적률, 1+1, 세제)" value="${state.searchQuery}">
+          <span class="material-symbols-outlined search-icon">search</span>
+          <input type="text" id="searchInput" class="search-input" placeholder="궁금한 키워드를 검색하세요 (예: 역세권, 분담금, 용적률, 1+1, 세제)" value="${state.searchQuery}">
+          <button class="search-clear-btn" id="searchClearBtn" title="검색어 지우기">&times;</button>
         </div>
 
-        <div class="filter-tabs" id="filterTabs">
-          ${categoriesHtml}
+        <!-- Quick Keyword Chips -->
+        <div class="quick-keywords">
+          <span class="quick-label">추천 키워드:</span>
+          <span class="quick-tag" data-kw="역세권">#역세권 고밀개발</span>
+          <span class="quick-tag" data-kw="용적률">#140% 용적률</span>
+          <span class="quick-tag" data-kw="현물선납">#현물선납 세제특례</span>
+          <span class="quick-tag" data-kw="동의율">#토지주 동의율</span>
+          <span class="quick-tag" data-kw="1+1">#1+1 우선공급</span>
+          <span class="quick-tag" data-kw="상가">#상가영업보상</span>
+        </div>
+
+        <!-- Key Status Statistics Grid -->
+        <div class="hero-stats-grid">
+          <div class="stat-item">
+            <div class="stat-val">50부작</div>
+            <div class="stat-label">실전 전문 연재 완비</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-val">8대 영역</div>
+            <div class="stat-label">체계적 지식 아카이브</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-val">최대 140%</div>
+            <div class="stat-label">법적 상한 용적률 완화</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-val">100% 실전</div>
+            <div class="stat-label">3초 요약 & Q&A 탑재</div>
+          </div>
         </div>
       </section>
 
+      <!-- Category Filter Tabs -->
+      <div class="filter-tabs-wrapper">
+        <div class="filter-tabs" id="filterTabs">
+          ${categoriesHtml}
+        </div>
+      </div>
+
       ${createAdSenseSlot('상단 메인 배너')}
 
+      <!-- Articles Card Feed -->
       <section class="articles-feed">
         ${filtered.length > 0 ? cardsHtml : `
-          <div style="text-align: center; padding: 4rem 1rem; color: var(--text-muted);">
-            <p style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem;">검색 결과가 없습니다.</p>
-            <p style="font-size: 0.9rem;">다른 검색어나 필터를 선택해 보세요.</p>
+          <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg);">
+            <p style="font-size: 1.2rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem;">검색 결과가 없습니다.</p>
+            <p style="font-size: 0.9rem; color: var(--text-muted);">다른 검색어나 상단 카테고리 필터를 선택해 보세요.</p>
+            <button class="btn-header" style="margin-top: 1rem;" onclick="window.filterCategory('all')">전체 목록 보기</button>
           </div>
         `}
       </section>
@@ -188,9 +416,19 @@
       ${createAdSenseSlot('하단 피드 배너')}
     `;
 
-    // Search & Filter event bindings
+    // 이벤트 바인딩
     const searchInput = document.getElementById('searchInput');
+    const searchClearBtn = document.getElementById('searchClearBtn');
+
     if (searchInput) {
+      if (searchClearBtn) {
+        searchClearBtn.style.display = state.searchQuery ? 'block' : 'none';
+        searchClearBtn.addEventListener('click', () => {
+          state.searchQuery = '';
+          renderHomeView();
+        });
+      }
+
       searchInput.addEventListener('input', (e) => {
         state.searchQuery = e.target.value;
         renderHomeView();
@@ -201,6 +439,14 @@
         }
       });
     }
+
+    // 퀵 태그 클릭
+    document.querySelectorAll('.quick-tag').forEach(tag => {
+      tag.addEventListener('click', () => {
+        state.searchQuery = tag.dataset.kw;
+        renderHomeView();
+      });
+    });
 
     const filterTabs = document.getElementById('filterTabs');
     if (filterTabs) {
@@ -215,7 +461,7 @@
   }
 
   // ==========================================
-  // 5. 글 상세 뷰 렌더링 (H2/H3/H4 파서 & Q&A 섹션 탑재)
+  // 5. 글 상세 뷰 렌더링 (Stitch Article Detail Refined)
   // ==========================================
   async function renderArticleView(articleId) {
     const article = await window.ApiClient.getArticleById(articleId);
@@ -223,8 +469,9 @@
     if (!article) {
       elements.mainContainer.innerHTML = `
         <div class="policy-container" style="text-align: center;">
-          <h2>요청하신 글을 찾을 수 없습니다.</h2>
-          <p style="margin-top: 1rem;"><a href="#home" class="btn-submit" style="display:inline-block; text-decoration:none;">홈으로 돌아가기</a></p>
+          <h2 class="policy-title">요청하신 아티클을 찾을 수 없습니다.</h2>
+          <p class="policy-desc" style="margin-top: 1rem;">주소가 잘못되었거나 삭제된 글입니다.</p>
+          <p style="margin-top: 1.5rem;"><a href="/" class="btn-submit" style="display:inline-block; text-decoration:none;">메인 포털로 돌아가기</a></p>
         </div>
       `;
       return;
@@ -243,65 +490,26 @@
       ]
     };
 
-    const cardNewsThemeClass = `card-news-theme-${article.categoryId || 'part-1'}`;
-
     const cardNewsHtml = `
-      <div class="card-news-banner ${cardNewsThemeClass}">
-        <span class="card-news-tagline">${cardNewsData.tagline}</span>
-        <h2 class="card-news-highlight">${cardNewsData.highlightText}</h2>
+      <div class="card-news-banner">
+        <div class="card-news-header">
+          <span class="card-news-tagline">${cardNewsData.tagline}</span>
+          <h2 class="card-news-highlight">${cardNewsData.highlightText}</h2>
+        </div>
         <div class="card-news-grid">
-          ${cardNewsData.items.map(item => `
+          ${cardNewsData.items.map((item) => `
             <div class="card-news-item">
               <div class="item-icon">${item.icon}</div>
-              <h4 class="item-title">${item.title}</h4>
-              <p class="item-desc">${item.desc}</p>
+              <h4 class="item-title">${parseInlineMarkdown(item.title)}</h4>
+              <p class="item-desc">${parseInlineMarkdown(item.desc)}</p>
             </div>
           `).join('')}
         </div>
       </div>
     `;
 
-    // Markdown Parser: H2, H3, H4, lists, quotes, bold
-    let formattedContent = article.content || '';
-    formattedContent = formattedContent.replace(/---/g, '');
-
-    const lines = formattedContent.split('\n');
-    let inList = false;
-    let bodyHtml = '';
-
-    for (let line of lines) {
-      line = line.trim();
-      if (!line) {
-        if (inList) { bodyHtml += '</ul>'; inList = false; }
-        continue;
-      }
-
-      if (line.startsWith('## ')) {
-        if (inList) { bodyHtml += '</ul>'; inList = false; }
-        bodyHtml += `<h2>${line.replace('## ', '')}</h2>`;
-      } else if (line.startsWith('# ')) {
-        if (inList) { bodyHtml += '</ul>'; inList = false; }
-        bodyHtml += `<h2>${line.replace('# ', '')}</h2>`;
-      } else if (line.startsWith('### ')) {
-        if (inList) { bodyHtml += '</ul>'; inList = false; }
-        bodyHtml += `<h3>${line.replace('### ', '')}</h3>`;
-      } else if (line.startsWith('#### ')) {
-        if (inList) { bodyHtml += '</ul>'; inList = false; }
-        bodyHtml += `<h4>${line.replace('#### ', '')}</h4>`;
-      } else if (line.startsWith('* ') || line.startsWith('- ')) {
-        if (!inList) { bodyHtml += '<ul>'; inList = true; }
-        const itemText = line.substring(2).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        bodyHtml += `<li>${itemText}</li>`;
-      } else if (line.startsWith('> ')) {
-        if (inList) { bodyHtml += '</ul>'; inList = false; }
-        bodyHtml += `<blockquote>${line.substring(2)}</blockquote>`;
-      } else {
-        if (inList) { bodyHtml += '</ul>'; inList = false; }
-        const parsedText = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        bodyHtml += `<p>${parsedText}</p>`;
-      }
-    }
-    if (inList) bodyHtml += '</ul>';
+    // Markdown Parser
+    const bodyHtml = parseMarkdownToHtml(article.content || '');
 
     // Q&A HTML rendering
     const qnaList = article.qna || [
@@ -322,85 +530,130 @@
     const qnaHtml = `
       <section class="reader-qna-section">
         <div class="qna-header">
-          <div class="qna-tag">💬 FAQ & 실무 가이드</div>
-          <h3 class="qna-title">이 주제에 대해 자주 묻는 핵심 Q&A</h3>
+          <div class="qna-tag">💬 실전 FAQ & 자문 가이드</div>
+          <h3 class="qna-title">이 주제에 대해 자주 묻는 핵심 질문 (Q&A)</h3>
         </div>
         <div class="qna-list">
           ${qnaList.map(item => `
             <div class="qna-item">
-              <div class="qna-q">${item.q}</div>
-              <div class="qna-a">${item.a}</div>
+              <div class="qna-q">${parseInlineMarkdown(item.q)}</div>
+              <div class="qna-a">${parseInlineMarkdown(item.a)}</div>
             </div>
           `).join('')}
         </div>
       </section>
     `;
 
-    // Related articles grid
+    // 이전/다음 글 찾기
+    const allArts = state.articles;
+    const currentIndex = allArts.findIndex(a => a.id === article.id || a.slug === article.slug);
+    const prevArticle = currentIndex > 0 ? allArts[currentIndex - 1] : null;
+    const nextArticle = currentIndex >= 0 && currentIndex < allArts.length - 1 ? allArts[currentIndex + 1] : null;
+
+    const navButtonsHtml = `
+      <div class="article-nav-buttons">
+        ${prevArticle ? `
+          <a href="/article/${prevArticle.slug || prevArticle.id}" class="btn-nav-card">
+            <span class="btn-nav-label">← 이전 연재 (VOL.${String(prevArticle.order).padStart(2, '0')})</span>
+            <span class="btn-nav-title">${prevArticle.title}</span>
+          </a>
+        ` : '<div></div>'}
+        ${nextArticle ? `
+          <a href="/article/${nextArticle.slug || nextArticle.id}" class="btn-nav-card" style="text-align: right; align-items: flex-end;">
+            <span class="btn-nav-label">다음 연재 (VOL.${String(nextArticle.order).padStart(2, '0')}) →</span>
+            <span class="btn-nav-title">${nextArticle.title}</span>
+          </a>
+        ` : '<div></div>'}
+      </div>
+    `;
+
+    // 연관 아티클 카드
     const relatedCardsHtml = (article.relatedArticles || []).map(rel => `
-      <a href="#article/${rel.id}" class="related-card">
-        <div>
-          <div class="rel-vol">VOL.${String(rel.order).padStart(2, '0')}</div>
-          <div class="rel-title">${rel.title}</div>
-        </div>
-        <div class="rel-summary">${(rel.easySummary || rel.summary || '').substring(0, 50)}…</div>
+      <a href="/article/${rel.slug || rel.id}" class="related-card">
+        <div class="rel-vol">VOL.${String(rel.order).padStart(2, '0')}</div>
+        <div class="rel-title">${rel.title}</div>
+        <div class="rel-summary">${parseInlineMarkdown((rel.easySummary || rel.summary || '').substring(0, 48))}…</div>
       </a>
     `).join('');
 
     elements.mainContainer.innerHTML = `
-      <article class="reader-container">
-        <div class="reader-nav" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-          <button class="btn-back" onclick="window.location.hash='#home'">← 전체 목록으로</button>
-          <button class="btn-header" id="btnOpenEditArticle" style="font-size: 0.85rem; padding: 0.45rem 0.9rem; background: var(--bg-card); border: 1px solid var(--border-color); cursor: pointer; display: ${state.isAdmin ? 'inline-flex' : 'none'}; align-items: center; gap: 0.35rem;">
-            <span>✏️</span> 이 글 수정하기
-          </button>
-        </div>
-
-        <header class="reader-header">
-          <div class="reader-meta-top">
-            <span class="reader-category-badge">${article.category}</span>
-            <span class="reader-vol">VOL.${String(article.order).padStart(2, '0')}</span>
+      <div class="reader-layout">
+        <article class="reader-container">
+          <!-- 상단 네비게이션 & 관리자 수정 버튼 -->
+          <div class="reader-nav">
+            <button class="btn-back" onclick="navigateTo('/')">
+              <span class="material-symbols-outlined icon-sm">arrow_back</span>
+              전체 연재 목록으로
+            </button>
+            <button class="btn-header" id="btnOpenEditArticle" style="display: ${state.isAdmin ? 'inline-flex' : 'none'};">
+              <span class="material-symbols-outlined icon-sm">edit</span>
+              이 글 수정하기
+            </button>
           </div>
-          <h1 class="reader-title">${article.title}</h1>
-          <div class="reader-info-bar">
-            <span>⏱️ ${article.readingTime || '4분'} 완성</span>
-            <span>👥 추천 대상: ${(article.targetAudience || ['전체']).join(', ')}</span>
+
+          <!-- 아티클 헤더 -->
+          <header class="reader-header">
+            <div class="reader-meta-top">
+              <span class="reader-category-badge">${article.category}</span>
+              <span class="reader-vol">VOL.${String(article.order).padStart(2, '0')}</span>
+            </div>
+            <h1 class="reader-title">${article.title}</h1>
+            <div class="reader-meta-bottom">
+              <span class="reader-author">🏛️ 도심복합개발 실전 연구팀</span>
+              <span>⏱️ ${article.readingTime || '4분'} 완독 &nbsp;|&nbsp; 👥 추천: ${(article.targetAudience || ['전체']).join(', ')}</span>
+            </div>
+          </header>
+
+          <!-- 3초 핵심 요약 박스 (Executive Summary) -->
+          <div class="executive-summary-box">
+            <div class="summary-header">
+              <span class="material-symbols-outlined icon-sm">bolt</span>
+              3초 핵심 요약 (Executive Summary)
+            </div>
+            <div class="summary-text">
+              ${
+                (article.easySummary || article.summary || '')
+                  .split('\n')
+                  .filter(line => line.trim())
+                  .map(line => `<div style="margin: 0.35rem 0;">${parseInlineMarkdown(line.trim())}</div>`)
+                  .join('')
+              }
+            </div>
           </div>
-        </header>
 
-        <div class="reader-summary-box">
-          <div class="summary-title">⚡ 3초 핵심 요약</div>
-          <div class="summary-text">${article.easySummary || article.summary}</div>
-        </div>
+          <!-- 카드뉴스 시각화 배너 -->
+          ${cardNewsHtml}
 
-        ${cardNewsHtml}
+          ${createAdSenseSlot('본문 상단 배너')}
 
-        ${createAdSenseSlot('본문 상단 배너')}
-
-        <div class="reader-body">
-          ${bodyHtml}
-        </div>
-
-        ${qnaHtml}
-
-        ${createAdSenseSlot('본문 중간 반응형 배너')}
-
-        <section class="story-bridge-section">
-          <div class="bridge-header">
-            <div class="bridge-tag">🔗 꼬리에 꼬리를 무는 연계 지식</div>
-            <h3 class="bridge-title">지금 읽은 내용과 바로 이어지는 추천 글</h3>
-            <p class="bridge-desc">${article.bridgeStory || '이 글과 밀접하게 연관된 핵심 포인트를 함께 읽고 지식망을 완성하세요.'}</p>
+          <!-- 본문 마크다운 -->
+          <div class="reader-body">
+            ${bodyHtml}
           </div>
-          <div class="related-grid">
-            ${relatedCardsHtml}
-          </div>
-        </section>
 
-        ${createAdSenseSlot('하단 매칭형 배너')}
-      </article>
+          <!-- 실무 Q&A 섹션 -->
+          ${qnaHtml}
+
+          ${createAdSenseSlot('본문 중간 반응형 배너')}
+
+          <!-- 이전/다음 글 네비게이션 -->
+          ${navButtonsHtml}
+
+          <!-- 연계 지식 추천 섹션 -->
+          <section class="related-section">
+            <div class="qna-tag">🔗 꼬리를 무는 연계 지식</div>
+            <h3 class="related-title">함께 읽으면 지식망이 완성되는 추천 연재</h3>
+            <div class="related-grid">
+              ${relatedCardsHtml}
+            </div>
+          </section>
+
+          ${createAdSenseSlot('하단 매칭형 배너')}
+        </article>
+      </div>
     `;
 
-    // Bind Edit Button
+    // 글 수정 버튼 바인딩
     const btnOpenEdit = document.getElementById('btnOpenEditArticle');
     if (btnOpenEdit) {
       btnOpenEdit.addEventListener('click', () => {
@@ -424,39 +677,48 @@
   }
 
   // ==========================================
-  // 6. 애드센스 필수 페이지: About Us (소개)
+  // 6. 정책 페이지: About Us (소개)
   // ==========================================
   function renderAboutView() {
     elements.mainContainer.innerHTML = `
       <section class="policy-container">
         <header class="policy-header">
           <h1 class="policy-title">About Us · 도심복합개발 지식 포털 소개</h1>
-          <p class="policy-date">최종 업데이트: 2026년 8월</p>
+          <p class="policy-desc">대한민국 공공·민간 도심복합사업 표준 실전 지식 아카이브</p>
         </header>
 
         <div class="policy-content">
-          <h2>1. 설립 취지와 목표 (E-E-A-T)</h2>
+          <h3>1. 설립 취지와 목표 (E-E-A-T)</h3>
           <p>
             본 포털은 복잡하고 난해한 대한민국의 <strong>도심 공공주택 복합사업(공공주택 특별법)</strong> 및 <strong>민간 도심 복합개발(도심 복합개발 지원에 관한 법률)</strong>에 관한 정책, 법률, 세무, 사업성 분석 정보를 투명하고 알기 쉽게 제공하기 위해 개설된 전문 지식 아카이브입니다.
           </p>
 
-          <h2>2. 전문성과 신뢰성</h2>
+          <h3>2. 전문성과 신뢰성</h3>
           <p>
             부동산 정비사업은 수많은 법적 쟁점과 토지소유자, 세입자, 상가영업권자 간의 이해관계가 얽혀 있습니다. 본 포털은 국토교통부 고시, LH·SH 공공기관 실무 가이드라인, 대법원 판례 및 세무 전문가 검증 데이터를 바탕으로 <strong>체계적인 지식 맵</strong>을 구축하였습니다.
           </p>
 
-          <div class="policy-callout">
-            <strong>💡 포털의 3대 핵심 원칙</strong>
-            <ul>
-              <li><strong>Fact-Based:</strong> 법령 조항 및 실제 행정 기준에 입각한 정확한 정보 제공</li>
-              <li><strong>User-Centric:</strong> 전문 용어를 일상 언어로 쉽게 풀어낸 높은 가독성</li>
-              <li><strong>Interconnected:</strong> 단편적 지식이 아닌 유기적 연계를 통한 입체적 이해 지원</li>
+          <blockquote style="margin: 1.5rem 0;">
+            <strong>💡 포털의 3대 핵심 원칙</strong><br>
+            • <strong>Fact-Based:</strong> 법령 조항 및 실제 행정 기준에 입각한 정확한 정보 제공<br>
+            • <strong>User-Centric:</strong> 전문 용어를 일상 언어로 쉽게 풀어낸 높은 가독성<br>
+            • <strong>Interconnected:</strong> 단편적 지식이 아닌 유기적 연계를 통한 입체적 이해 지원
+          </blockquote>
+
+          <h3>3. 운영 주체</h3>
+          <div style="background: var(--bg-surface-low); border: 1.5px solid var(--border-color); border-radius: var(--radius-md); padding: 1.2rem 1.5rem; margin: 1.2rem 0;">
+            <strong style="color: var(--color-primary); font-size: 1.05rem;">🏢 현대공인중개사사무소</strong>
+            <ul style="margin: 0.6rem 0 0 1.2rem; line-height: 1.8;">
+              <li><strong>대표:</strong> 백명건</li>
+              <li><strong>주소:</strong> 서울특별시 서초구 반포동 714-26 1층</li>
+              <li><strong>등록번호:</strong> 11650-2016-00300</li>
+              <li><strong>대표번호:</strong> 02-3446-2361 &nbsp;|&nbsp; <strong>팩스:</strong> 02-3446-2711</li>
             </ul>
           </div>
 
-          <h2>3. 운영 및 콘텐츠 업데이트</h2>
+          <h3>4. 콘텐츠 업데이트 안내</h3>
           <p>
-            정부의 부동산 대책과 법령 개정 사항을 지속적으로 모니터링하여 최신성 높은 정보를 업데이트하고 있습니다. 오류 제보나 연구 협업 문의는 언제든지 <a href="#contact" style="color: var(--brand-primary); font-weight:700;">문의하기</a>를 이용해 주시기 바랍니다.
+            정부의 부동산 대책과 법령 개정 사항을 지속적으로 모니터링하여 최신 정보를 업데이트하고 있습니다. 오류 제보나 추가 문의는 언제든지 <a href="/contact" style="color: var(--color-secondary); font-weight:700;">문의하기</a>를 이용해 주시기 바랍니다.
           </p>
         </div>
       </section>
@@ -465,14 +727,14 @@
   }
 
   // ==========================================
-  // 7. 애드센스 필수 페이지: Privacy Policy (개인정보처리방침)
+  // 7. 정책 페이지: Privacy Policy (개인정보처리방침)
   // ==========================================
   function renderPrivacyView() {
     elements.mainContainer.innerHTML = `
       <section class="policy-container">
         <header class="policy-header">
           <h1 class="policy-title">Privacy Policy · 개인정보처리방침</h1>
-          <p class="policy-date">시행일자: 2026년 8월 1일</p>
+          <p class="policy-desc">시행일자: 2026년 8월 1일</p>
         </header>
 
         <div class="policy-content">
@@ -480,7 +742,7 @@
             도심복합개발 지식 포털(이하 "사이트")은 이용자의 개인정보를 중요시하며, 「개인정보 보호법」 및 Google AdSense 정책을 준수하고 있습니다.
           </p>
 
-          <h2>1. 수집하는 개인정보 항목 및 수집 방법</h2>
+          <h3>1. 수집하는 개인정보 항목 및 수집 방법</h3>
           <p>
             본 사이트는 일반적인 열람 시 별도의 회원가입 없이 모든 콘텐츠를 이용할 수 있습니다. 단, '문의하기(Contact Us)' 폼을 이용할 때 아래 정보가 수집됩니다.
           </p>
@@ -490,29 +752,20 @@
             <li><strong>보유 기간:</strong> 문의 처리 완료 후 1년간 보관 후 지체 없이 파기</li>
           </ul>
 
-          <h2>2. 쿠키(Cookie) 및 웹 비콘 사용 안내 (Google AdSense 준수)</h2>
+          <h3>2. 쿠키(Cookie) 및 웹 비콘 사용 안내 (Google AdSense 준수)</h3>
           <p>
             본 사이트는 제3자 광고 사업자(Google 포함)를 통해 사용자가 본 사이트 또는 다른 웹사이트를 방문한 기록을 바탕으로 맞춤형 광고를 게재합니다.
           </p>
           <ul>
             <li>Google은 <strong>DoubleClick DART 쿠키</strong>를 사용하여 인터넷 방문 기록에 따른 광고를 사용자에게 게재합니다.</li>
-            <li>사용자는 <a href="https://adssettings.google.com" target="_blank" rel="noopener noreferrer" style="color: var(--brand-primary); font-weight:700;">Google 광고 설정</a>을 방문하여 개인 맞춤 광고 설정을 해제(Opt-out)할 수 있습니다.</li>
+            <li>사용자는 <a href="https://adssettings.google.com" target="_blank" rel="noopener noreferrer" style="color: var(--color-secondary); font-weight:700;">Google 광고 설정</a>을 방문하여 개인 맞춤 광고 설정을 해제(Opt-out)할 수 있습니다.</li>
             <li>또한 웹 브라우저의 옵션 설정을 통해 모든 쿠키를 거부하거나 쿠키 저장 시 알림을 받도록 설정할 수 있습니다.</li>
           </ul>
 
-          <h2>3. 개인정보의 제3자 제공 및 위탁</h2>
+          <h3>3. 개인정보 보호책임자</h3>
           <p>
-            본 사이트는 이용자의 개인정보를 원칙적으로 외부에 제공하지 않으며, 법령의 규정에 의거하거나 수사 목적으로 법령에 정해진 절차와 방법에 따라 요구가 있는 경우에만 제공합니다.
+            현대공인중개사사무소 (대표: 백명건 / 서울특별시 서초구 반포동 714-26 1층 / 02-3446-2361)
           </p>
-
-          <h2>4. 개인정보 보호책임자 및 담당 부서</h2>
-          <p>
-            개인정보 처리 및 보안과 관련한 문의사항은 아래 연락처로 문의해 주시기 바랍니다.
-          </p>
-          <ul>
-            <li><strong>책임자:</strong> 도심복합개발 포털 개인정보 관리팀</li>
-            <li><strong>이메일:</strong> contact@urban-complex-guide.com</li>
-          </ul>
         </div>
       </section>
       ${createAdSenseSlot('Privacy 페이지 하단 슬롯')}
@@ -520,36 +773,31 @@
   }
 
   // ==========================================
-  // 8. 애드센스 필수 페이지: Terms of Service (이용약관 및 면책조항)
+  // 8. 정책 페이지: Terms of Service (이용약관 및 면책조항)
   // ==========================================
   function renderTermsView() {
     elements.mainContainer.innerHTML = `
       <section class="policy-container">
         <header class="policy-header">
           <h1 class="policy-title">Terms of Service · 이용약관 및 법적 면책조항</h1>
-          <p class="policy-date">시행일자: 2026년 8월 1일</p>
+          <p class="policy-desc">시행일자: 2026년 8월 1일</p>
         </header>
 
         <div class="policy-content">
-          <h2>1. 목적</h2>
+          <h3>1. 목적</h3>
           <p>
             본 약관은 도심복합개발 지식 포털이 제공하는 모든 정보 서비스의 이용 조건 및 절차, 이용자와 사이트 간의 권리, 의무 및 책임사항을 규정함을 목적으로 합니다.
           </p>
 
-          <h2>2. 법적 면책조항 (Disclaimer - 중요)</h2>
-          <div class="policy-callout">
+          <h3>2. 법적 면책조항 (Disclaimer - 중요)</h3>
+          <blockquote style="margin: 1.5rem 0;">
             <strong>⚠️ 투자 및 법률 자문 면책 고지</strong><br>
             본 사이트에서 제공하는 모든 연재 아티클, 법률 분석, 계산 예시, 후보지 정보 등은 부동산 제도에 대한 <strong>일반적인 정보 제공 및 학술적 연구 목적</strong>으로 작성된 것입니다. 이는 특정 부동산 매매 권유, 투자 자문, 공식 법률 또는 세무 감정 의견을 대신할 수 없습니다. 모든 최종 의사결정은 관할 지자체 고시 및 전문 세무사·변호사의 자문을 받으시기 바랍니다.
-          </div>
+          </blockquote>
 
-          <h2>3. 저작권 및 지식재산권</h2>
+          <h3>3. 저작권 및 지식재산권</h3>
           <p>
             본 사이트에 게재된 텍스트, HTML 카드뉴스, 그래픽, 지식 그래프 시각화 엔진의 모든 저작권은 사이트 운영팀에 귀속됩니다. 사전 동의 없는 무단 전재, 크롤링, 상업적 재배포를 금지합니다.
-          </p>
-
-          <h2>4. 약관의 변경</h2>
-          <p>
-            본 약관은 관련 법령 및 서비스 운영 방침에 따라 변경될 수 있으며, 개정 시 본 페이지를 통해 공지합니다.
           </p>
         </div>
       </section>
@@ -558,19 +806,19 @@
   }
 
   // ==========================================
-  // 9. 애드센스 필수 페이지: Contact Us (문의하기)
+  // 9. 정책 페이지: Contact Us (문의하기)
   // ==========================================
   function renderContactView() {
     elements.mainContainer.innerHTML = `
       <section class="policy-container">
         <header class="policy-header">
           <h1 class="policy-title">Contact Us · 문의하기 & 피드백</h1>
-          <p class="policy-date">도심복합개발 포털 운영팀과의 소통 채널입니다.</p>
+          <p class="policy-desc">도심복합개발 포털 연구팀과의 소통 채널입니다.</p>
         </header>
 
         <div class="policy-content">
           <p>
-            콘텐츠에 대한 추가 문의, 후보지 데이터 정정 요청, 비즈니스 제휴 및 칼럼 기고 문의는 아래 양식을 작성해 주시면 담당자가 확인 후 24시간 이내에 회신해 드립니다.
+            콘텐츠에 대한 추가 문의, 후보지 데이터 정정 요청, 비즈니스 제휴 및 칼럼 기고 문의는 아래 양식을 작성해 주시면 담당자가 확인 후 신속하게 회신해 드립니다.
           </p>
 
           <form id="contactPageForm" class="contact-form">
@@ -591,7 +839,7 @@
 
             <div class="form-group">
               <label class="form-label" for="contactMsg">문의 내용 *</label>
-              <textarea id="contactMsg" class="form-textarea" placeholder="자세한 문의 내용이나 피드백을 남겨주세요." required></textarea>
+              <textarea id="contactMsg" class="form-textarea" style="min-height: 140px;" placeholder="자세한 문의 내용이나 피드백을 남겨주세요." required></textarea>
             </div>
 
             <button type="submit" class="btn-submit">문의 전송하기</button>
@@ -599,10 +847,13 @@
 
           <div id="contactStatus" style="margin-top: 1rem; font-weight:700; display:none;"></div>
 
-          <div class="policy-callout" style="margin-top: 2rem;">
-            <strong>📬 공식 연락처 안내</strong>
-            <ul>
-              <li><strong>공식 이메일:</strong> contact@urban-complex-guide.com</li>
+          <div style="margin-top: 2rem; background: var(--bg-surface-low); border: 1.5px solid var(--border-color); border-radius: var(--radius-md); padding: 1.2rem 1.5rem;">
+            <strong style="color: var(--color-primary); font-size: 1.05rem;">📬 공식 연락처 안내</strong>
+            <ul style="margin: 0.5rem 0 0 1.2rem; line-height: 1.8;">
+              <li><strong>상호:</strong> 현대공인중개사사무소</li>
+              <li><strong>대표:</strong> 백명건 &nbsp;|&nbsp; <strong>등록번호:</strong> 11650-2016-00300</li>
+              <li><strong>주소:</strong> 서울특별시 서초구 반포동 714-26 1층</li>
+              <li><strong>대표번호:</strong> 02-3446-2361 &nbsp;|&nbsp; <strong>팩스:</strong> 02-3446-2711</li>
               <li><strong>운영 시간:</strong> 평일 09:30 ~ 18:00 (주말 및 공휴일 제외)</li>
             </ul>
           </div>
@@ -624,7 +875,7 @@
         };
 
         contactStatus.style.display = 'block';
-        contactStatus.style.color = 'var(--brand-primary)';
+        contactStatus.style.color = 'var(--color-secondary)';
         contactStatus.textContent = '문의를 전송하는 중입니다...';
 
         const result = await window.ApiClient.submitContact(data);
@@ -671,7 +922,6 @@
           state.articles = await window.ApiClient.getArticles();
         }
 
-        // 지연 렌더링(모달 레이아웃 계산 후 캔버스 사이즈 맞춤)
         setTimeout(() => {
           if (!graphInstance) {
             graphInstance = new window.KnowledgeGraph(
@@ -681,7 +931,7 @@
               (articleId) => {
                 elements.graphModal.classList.remove('active');
                 if (graphInstance) graphInstance.hideTooltip();
-                window.location.hash = `#article/${articleId}`;
+                navigateTo(`/article/${articleId}`);
               }
             );
           } else {
@@ -700,7 +950,6 @@
       });
     }
 
-    // 모달 배경 클릭 시 닫기
     if (elements.graphModal) {
       elements.graphModal.addEventListener('click', (e) => {
         if (e.target === elements.graphModal) {
@@ -710,7 +959,7 @@
       });
     }
 
-    // 지식 그래프 컨트롤 (리셋, 줌인, 줌아웃, 검색, 카테고리 필터)
+    // 지식 그래프 툴 컨트롤
     const btnResetGraph = document.getElementById('btnResetGraph');
     if (btnResetGraph) {
       btnResetGraph.addEventListener('click', () => {
@@ -789,7 +1038,6 @@
           ]
         };
 
-        // Try API
         try {
           const res = await fetch('/api/articles', {
             method: 'POST',
@@ -802,12 +1050,12 @@
             elements.publishModal.classList.remove('active');
             elements.publishForm.reset();
             state.articles = await window.ApiClient.getArticles();
-            window.location.hash = `#article/${data.data.id}`;
+            navigateTo(`/article/${data.data.slug || data.data.id}`);
             return;
           }
         } catch (_) {}
 
-        // Local fallback
+        // 로컬 스토리지 폴백
         const localSaved = JSON.parse(localStorage.getItem('CUSTOM_ARTICLES') || '[]');
         const nextOrder = state.articles.length + 1;
         const customArt = {
@@ -830,11 +1078,11 @@
         elements.publishModal.classList.remove('active');
         elements.publishForm.reset();
         state.articles = await window.ApiClient.getArticles();
-        window.location.hash = `#article/${customArt.id}`;
+        navigateTo(`/article/${customArt.slug || customArt.id}`);
       });
     }
 
-    // Edit Article Modal Event Handlers
+    // CMS 수정 모달
     const editModal = document.getElementById('editModal');
     const btnCloseEdit = document.getElementById('btnCloseEdit');
     const btnCancelEdit = document.getElementById('btnCancelEdit');
@@ -881,7 +1129,7 @@
       });
     }
 
-    // Admin Authentication Handlers
+    // Admin 관리자 모달
     function openAdminModal() {
       if (elements.adminModal) {
         if (elements.adminLoginError) elements.adminLoginError.style.display = 'none';
@@ -899,7 +1147,7 @@
             sessionStorage.removeItem('ADMIN_KEY');
             localStorage.removeItem('ADMIN_KEY');
             updateAdminUI();
-            if (state.currentArticle && window.location.hash.startsWith('#article/')) {
+            if (state.currentArticle && window.location.pathname.startsWith('/article/')) {
               renderArticleView(state.currentArticle.id);
             }
             alert('관리자 모드가 해제되었습니다.');
@@ -933,8 +1181,8 @@
           localStorage.setItem('ADMIN_KEY', 'urban2026!');
           updateAdminUI();
           elements.adminModal.classList.remove('active');
-          alert('✅ 관리자 인증 완료!\n이제 상단 글쓰기 및 본문 수정 기능이 활성화되었습니다.');
-          if (state.currentArticle && window.location.hash.startsWith('#article/')) {
+          alert('✅ 관리자 인증 완료!\n이제 상단 글쓰기 및 본문 실시간 CMS 수정 기능이 활성화되었습니다.');
+          if (state.currentArticle && window.location.pathname.startsWith('/article/')) {
             renderArticleView(state.currentArticle.id);
           }
         } else {
@@ -943,7 +1191,7 @@
       });
     }
 
-    // Shortcut: Ctrl + Shift + A to open Admin Modal
+    // 단축키: Ctrl + Shift + A 관리자 모달
     window.addEventListener('keydown', (e) => {
       if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
         e.preventDefault();
@@ -959,12 +1207,12 @@
     }
     if (elements.btnAdminToggle) {
       if (state.isAdmin) {
-        elements.btnAdminToggle.innerHTML = '🔓 관리자 종료';
+        elements.btnAdminToggle.innerHTML = '<span class="material-symbols-outlined icon-sm">lock_open</span><span>관리자 종료</span>';
         elements.btnAdminToggle.title = '관리자 세션 종료(로그아웃)';
-        elements.btnAdminToggle.style.borderColor = '#10B981';
-        elements.btnAdminToggle.style.color = '#10B981';
+        elements.btnAdminToggle.style.borderColor = 'var(--color-accent)';
+        elements.btnAdminToggle.style.color = 'var(--color-accent-hover)';
       } else {
-        elements.btnAdminToggle.innerHTML = '🔒 관리자';
+        elements.btnAdminToggle.innerHTML = '<span class="material-symbols-outlined icon-sm">lock</span><span>관리자</span>';
         elements.btnAdminToggle.title = '관리자 모드 로그인';
         elements.btnAdminToggle.style.borderColor = '';
         elements.btnAdminToggle.style.color = '';
@@ -978,13 +1226,17 @@
 
   function applyTheme(theme) {
     state.theme = theme;
+    document.body.classList.remove('theme-light', 'theme-dark');
+    document.body.classList.add(`theme-${theme}`);
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('THEME', theme);
-    if (elements.themeToggleBtn) {
-      elements.themeToggleBtn.textContent = theme === 'light' ? '🌙 다크모드' : '☀️ 라이트모드';
+
+    const themeIcon = document.getElementById('themeIcon');
+    if (themeIcon) {
+      themeIcon.textContent = theme === 'light' ? 'dark_mode' : 'light_mode';
     }
   }
 
-  // Start app
+  // 앱 시작
   document.addEventListener('DOMContentLoaded', init);
 })();
