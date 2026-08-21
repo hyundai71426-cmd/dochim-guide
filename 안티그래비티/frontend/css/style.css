@@ -1636,4 +1636,110 @@ body.theme-dark .reader-body h2, [data-theme="dark"] .reader-body h2 {
   .article-nav-buttons {
     grid-template-columns: 1fr;
   }
+
+  .author-profile-box {
+    flex-direction: column;
+    text-align: center;
+  }
 }
+
+/* ==========================================================================
+   14. E-E-A-T 저자 프로필 박스 & 브레드크럼 네비게이션
+   ========================================================================== */
+.breadcrumb-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.breadcrumb-nav a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.15s ease;
+}
+
+.breadcrumb-nav a:hover {
+  color: var(--color-secondary);
+  text-decoration: underline;
+}
+
+.breadcrumb-separator {
+  color: var(--text-light);
+  font-size: 0.75rem;
+}
+
+.author-profile-box {
+  display: flex;
+  gap: 1.2rem;
+  align-items: center;
+  padding: 1.5rem 1.8rem;
+  background: linear-gradient(135deg, var(--bg-surface-low) 0%, var(--bg-surface) 100%);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  margin: 2.8rem 0 1.8rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.author-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1A365D 0%, #0051D5 100%);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(0, 81, 213, 0.25);
+}
+
+.author-info {
+  flex: 1;
+}
+
+.author-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--color-accent-hover);
+  background-color: var(--color-accent-subtle);
+  border: 1px solid var(--color-accent-border);
+  padding: 0.15rem 0.55rem;
+  border-radius: var(--radius-xs);
+  margin-bottom: 0.3rem;
+  letter-spacing: 0.02em;
+}
+
+.author-name {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.author-desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  margin-top: 0.25rem;
+}
+
+.author-meta {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 0.4rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+

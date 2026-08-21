@@ -593,13 +593,20 @@
 
           <!-- 아티클 헤더 -->
           <header class="reader-header">
+            <nav class="breadcrumb-nav" aria-label="Breadcrumb">
+              <a href="/">홈</a>
+              <span class="breadcrumb-separator">/</span>
+              <a href="/" onclick="window.filterCategory && window.filterCategory('${article.categoryId}')">${article.category}</a>
+              <span class="breadcrumb-separator">/</span>
+              <span style="color: var(--text-primary); font-weight:700;">VOL.${String(article.order).padStart(2, '0')}</span>
+            </nav>
             <div class="reader-meta-top">
               <span class="reader-category-badge">${article.category}</span>
               <span class="reader-vol">VOL.${String(article.order).padStart(2, '0')}</span>
             </div>
             <h1 class="reader-title">${article.title}</h1>
             <div class="reader-meta-bottom">
-              <span class="reader-author">🏛️ 도심복합개발 실전 연구팀</span>
+              <span class="reader-author">🏛️ 도심복합개발 실전 연구팀 (검증 전문가: 백명건 대표)</span>
               <span>⏱️ ${article.readingTime || '4분'} 완독 &nbsp;|&nbsp; 👥 추천: ${(article.targetAudience || ['전체']).join(', ')}</span>
             </div>
           </header>
@@ -633,6 +640,28 @@
 
           <!-- 실무 Q&A 섹션 -->
           ${qnaHtml}
+
+          <!-- E-E-A-T 저자 프로필 박스 -->
+          <div class="author-profile-box">
+            <div class="author-avatar">🏛️</div>
+            <div class="author-info">
+              <div class="author-badge">
+                <span class="material-symbols-outlined icon-sm" style="font-size:0.9rem;">verified</span>
+                전문가 검증 칼럼 (E-E-A-T)
+              </div>
+              <div class="author-name">
+                현대공인중개사사무소 · 도심복합개발 연구팀
+              </div>
+              <div class="author-desc">
+                공공도심복합사업 및 민간도심복합개발법 실전 정책·법률·사업성 분석 전문. 서울시 및 수도권 주요 정비사업 구역의 권리분석 및 세제 컨설팅을 제공합니다.
+              </div>
+              <div class="author-meta">
+                <span>📍 서울특별시 서초구 반포동 714-26 1층</span>
+                <span>대표: 백명건 (등록번호: 11650-2016-00300)</span>
+                <span>문의: 02-3446-2361</span>
+              </div>
+            </div>
+          </div>
 
           ${createAdSenseSlot('본문 중간 반응형 배너')}
 
