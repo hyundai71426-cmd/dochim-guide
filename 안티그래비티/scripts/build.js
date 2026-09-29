@@ -211,7 +211,7 @@ for (let i = 0; i < articles.length; i++) {
   }
 
   const plainDesc = (article.easySummary || article.summary || '').replace(/[`*#>]/g, '').substring(0, 160).trim();
-  const fullUrl = `${baseUrl}/article/${article.slug}`;
+  const fullUrl = `${baseUrl}/article/${article.slug}/`;
 
   // 이전/다음 글 계산
   const prevArticle = i > 0 ? articles[i - 1] : null;
@@ -220,13 +220,13 @@ for (let i = 0; i < articles.length; i++) {
   const navButtonsHtml = `
     <div class="article-nav-buttons">
       ${prevArticle ? `
-        <a href="/article/${prevArticle.slug || prevArticle.id}" class="btn-nav-card">
+        <a href="/article/${prevArticle.slug || prevArticle.id}/" class="btn-nav-card">
           <span class="btn-nav-label">← 이전 연재 (VOL.${String(prevArticle.order).padStart(2, '0')})</span>
           <span class="btn-nav-title">${prevArticle.title}</span>
         </a>
       ` : '<div></div>'}
       ${nextArticle ? `
-        <a href="/article/${nextArticle.slug || nextArticle.id}" class="btn-nav-card" style="text-align: right; align-items: flex-end;">
+        <a href="/article/${nextArticle.slug || nextArticle.id}/" class="btn-nav-card" style="text-align: right; align-items: flex-end;">
           <span class="btn-nav-label">다음 연재 (VOL.${String(nextArticle.order).padStart(2, '0')}) →</span>
           <span class="btn-nav-title">${nextArticle.title}</span>
         </a>
@@ -305,7 +305,7 @@ for (let i = 0; i < articles.length; i++) {
   const fallbackRelated = relatedArticles.length > 0 ? relatedArticles : articles.filter(a => a.id !== article.id).slice(0, 3);
 
   const relatedCardsHtml = fallbackRelated.map(rel => `
-    <a href="/article/${rel.slug || rel.id}" class="related-card">
+    <a href="/article/${rel.slug || rel.id}/" class="related-card">
       <div class="rel-vol">VOL.${String(rel.order).padStart(2, '0')}</div>
       <div class="rel-title">${rel.title}</div>
       <div class="rel-summary">${parseInlineMarkdown((rel.easySummary || rel.summary || '').substring(0, 48))}…</div>
@@ -343,6 +343,11 @@ for (let i = 0; i < articles.length; i++) {
             <span>⏱️ ${article.readingTime || '4분'} 완독 &nbsp;|&nbsp; 👥 추천: ${(article.targetAudience || ['전체']).join(', ')}</span>
           </div>
         </header>
+
+        <!-- 아티클 대표 썸네일 히어로 배너 (LCP 최적화: fetchpriority=high, 명시적 크기) -->
+        <div class="reader-hero-thumb">
+          <img src="${article.thumbnail || `/images/thumbnails/thumb_post${orderNum}.webp`}" alt="${article.alt || article.title}" class="reader-thumb-img" width="560" height="560" fetchpriority="high">
+        </div>
 
         <!-- 3초 핵심 요약 박스 (Executive Summary) -->
         <div class="executive-summary-box">
@@ -450,7 +455,8 @@ for (let i = 0; i < articles.length; i++) {
         "mainEntityOfPage": {
           "@type": "WebPage",
           "@id": fullUrl
-        }
+        },
+        "image": `${baseUrl}${article.thumbnail || `/images/thumbnails/thumb_post${orderNum}.png`}`
       },
       {
         "@type": "BreadcrumbList",
@@ -479,16 +485,20 @@ for (let i = 0; i < articles.length; i++) {
   };
 
   let pageHtml = templateHtml;
+  const thumbUrl = `${baseUrl}${article.thumbnail || `/images/thumbnails/thumb_post${orderNum}.webp`}`;
 
-  // 1. Meta Tags 교체
+  // 1. Meta Tags & Canonical 교체
+  pageHtml = pageHtml.replace(/<link rel="canonical" href=".*?">/, `<link rel="canonical" href="${fullUrl}">`);
   pageHtml = pageHtml.replace(/<title>.*?<\/title>/, `<title>${article.title} · 도심복합개발 백과사전</title>`);
   pageHtml = pageHtml.replace(/<meta name="title" content=".*?">/, `<meta name="title" content="${article.title}">`);
   pageHtml = pageHtml.replace(/<meta name="description" content=".*?">/, `<meta name="description" content="${plainDesc}">`);
   pageHtml = pageHtml.replace(/<meta property="og:title" content=".*?">/, `<meta property="og:title" content="${article.title}">`);
   pageHtml = pageHtml.replace(/<meta property="og:description" content=".*?">/, `<meta property="og:description" content="${plainDesc}">`);
   pageHtml = pageHtml.replace(/<meta property="og:url" content=".*?">/, `<meta property="og:url" content="${fullUrl}">`);
+  pageHtml = pageHtml.replace(/<meta property="og:image" content=".*?">/, `<meta property="og:image" content="${thumbUrl}">`);
   pageHtml = pageHtml.replace(/<meta property="twitter:title" content=".*?">/, `<meta property="twitter:title" content="${article.title}">`);
   pageHtml = pageHtml.replace(/<meta property="twitter:description" content=".*?">/, `<meta property="twitter:description" content="${plainDesc}">`);
+  pageHtml = pageHtml.replace(/<meta property="twitter:image" content=".*?">/, `<meta property="twitter:image" content="${thumbUrl}">`);
 
   // 2. JSON-LD 주입
   pageHtml = pageHtml.replace(
@@ -563,10 +573,11 @@ const aboutContent = `
 `;
 
 let aboutHtml = templateHtml
+  .replace(/<link rel="canonical" href=".*?">/, `<link rel="canonical" href="${baseUrl}/about/">`)
   .replace(/<title>.*?<\/title>/, `<title>About Us · 도심복합개발 지식 포털 소개</title>`)
   .replace(/<meta name="title" content=".*?">/, `<meta name="title" content="About Us · 도심복합개발 지식 포털 소개">`)
   .replace(/<meta name="description" content=".*?">/, `<meta name="description" content="도심복합개발 실전 지식 포털 설립 취지, E-E-A-T 전문성 및 운영팀 소개">`)
-  .replace(/<meta property="og:url" content=".*?">/, `<meta property="og:url" content="${baseUrl}/about">`)
+  .replace(/<meta property="og:url" content=".*?">/, `<meta property="og:url" content="${baseUrl}/about/">`)
   .replace(/<main class="main-wrapper" id="mainContainer">[\s\S]*?<\/main>/, `<main class="main-wrapper" id="mainContainer">\n${aboutContent}\n  </main>`);
 
 fs.writeFileSync(path.join(aboutDir, 'index.html'), aboutHtml, 'utf8');
@@ -617,10 +628,11 @@ const privacyContent = `
 `;
 
 let privacyHtml = templateHtml
+  .replace(/<link rel="canonical" href=".*?">/, `<link rel="canonical" href="${baseUrl}/privacy/">`)
   .replace(/<title>.*?<\/title>/, `<title>개인정보처리방침 (Privacy Policy) · 도심복합개발 지식 포털</title>`)
   .replace(/<meta name="title" content=".*?">/, `<meta name="title" content="개인정보처리방침 (Privacy Policy) · 도심복합개발 지식 포털">`)
   .replace(/<meta name="description" content=".*?">/, `<meta name="description" content="도심복합개발 포털의 개인정보 보호 정책, Google AdSense 쿠키 규정 안내">`)
-  .replace(/<meta property="og:url" content=".*?">/, `<meta property="og:url" content="${baseUrl}/privacy">`)
+  .replace(/<meta property="og:url" content=".*?">/, `<meta property="og:url" content="${baseUrl}/privacy/">`)
   .replace(/<main class="main-wrapper" id="mainContainer">[\s\S]*?<\/main>/, `<main class="main-wrapper" id="mainContainer">\n${privacyContent}\n  </main>`);
 
 fs.writeFileSync(path.join(privacyDir, 'index.html'), privacyHtml, 'utf8');
@@ -658,10 +670,11 @@ const termsContent = `
 `;
 
 let termsHtml = templateHtml
+  .replace(/<link rel="canonical" href=".*?">/, `<link rel="canonical" href="${baseUrl}/terms/">`)
   .replace(/<title>.*?<\/title>/, `<title>이용약관 및 면책조항 (Terms of Service) · 도심복합개발 포털</title>`)
   .replace(/<meta name="title" content=".*?">/, `<meta name="title" content="이용약관 및 면책조항 (Terms of Service) · 도심복합개발 포털">`)
   .replace(/<meta name="description" content=".*?">/, `<meta name="description" content="도심복합개발 지식 포털 서비스 이용약관 및 투자/법률 면책조항">`)
-  .replace(/<meta property="og:url" content=".*?">/, `<meta property="og:url" content="${baseUrl}/terms">`)
+  .replace(/<meta property="og:url" content=".*?">/, `<meta property="og:url" content="${baseUrl}/terms/">`)
   .replace(/<main class="main-wrapper" id="mainContainer">[\s\S]*?<\/main>/, `<main class="main-wrapper" id="mainContainer">\n${termsContent}\n  </main>`);
 
 fs.writeFileSync(path.join(termsDir, 'index.html'), termsHtml, 'utf8');
@@ -720,10 +733,11 @@ const contactContent = `
 `;
 
 let contactHtml = templateHtml
+  .replace(/<link rel="canonical" href=".*?">/, `<link rel="canonical" href="${baseUrl}/contact/">`)
   .replace(/<title>.*?<\/title>/, `<title>문의하기 (Contact Us) · 도심복합개발 지식 포털</title>`)
   .replace(/<meta name="title" content=".*?">/, `<meta name="title" content="문의하기 (Contact Us) · 도심복합개발 지식 포털">`)
   .replace(/<meta name="description" content=".*?">/, `<meta name="description" content="도심복합개발 실전 연구팀 및 현대공인중개사사무소 문의 채널">`)
-  .replace(/<meta property="og:url" content=".*?">/, `<meta property="og:url" content="${baseUrl}/contact">`)
+  .replace(/<meta property="og:url" content=".*?">/, `<meta property="og:url" content="${baseUrl}/contact/">`)
   .replace(/<main class="main-wrapper" id="mainContainer">[\s\S]*?<\/main>/, `<main class="main-wrapper" id="mainContainer">\n${contactContent}\n  </main>`);
 
 fs.writeFileSync(path.join(contactDir, 'index.html'), contactHtml, 'utf8');
@@ -745,27 +759,38 @@ const categoriesHtml = `
   `).join('')}
 `;
 
-const cardsHtml = articles.map(art => `
-  <a href="/article/${art.slug || art.id}" class="article-card">
-    <div>
-      <div class="card-top">
-        <span class="card-vol">VOL.${String(art.order).padStart(2, '0')} · ${(art.category || '').split('.')[0]}</span>
-        <span class="card-time">⏱️ ${art.readingTime || '4분'} 읽기</span>
-      </div>
-      <h3 class="card-title">${art.title}</h3>
-      <p class="card-summary">${parseInlineMarkdown(art.easySummary || art.summary)}</p>
+const cardsHtml = articles.map(art => {
+  const orderStr = String(art.order).padStart(2, '0');
+  const thumbSrc = art.thumbnail || `/images/thumbnails/thumb_post${orderStr}.webp`;
+  const altText = art.alt || `VOL.${orderStr} ${art.title} - 도심복합개발 썸네일`;
+  return `
+  <a href="/article/${art.slug || art.id}/" class="article-card">
+    <div class="card-thumb-wrapper">
+      <img src="${thumbSrc}" alt="${altText}" class="card-thumb-img" loading="lazy">
+      <span class="card-vol-badge">VOL.${orderStr}</span>
     </div>
-    <div class="card-bottom">
-      <div class="card-tags">
-        ${(art.tags || []).slice(0, 3).map(t => `<span class="tag-badge">#${t}</span>`).join('')}
+    <div class="card-content-wrap">
+      <div>
+        <div class="card-top">
+          <span class="card-vol">${(art.category || '').split('.')[0]}</span>
+          <span class="card-time">⏱️ ${art.readingTime || '4분'} 읽기</span>
+        </div>
+        <h3 class="card-title">${art.title}</h3>
+        <p class="card-summary">${parseInlineMarkdown(art.easySummary || art.summary)}</p>
       </div>
-      <span class="card-read-action">
-        바로 읽기
-        <span class="material-symbols-outlined icon-sm">arrow_forward</span>
-      </span>
+      <div class="card-bottom">
+        <div class="card-tags">
+          ${(art.tags || []).slice(0, 3).map(t => `<span class="tag-badge">#${t}</span>`).join('')}
+        </div>
+        <span class="card-read-action">
+          바로 읽기
+          <span class="material-symbols-outlined icon-sm">arrow_forward</span>
+        </span>
+      </div>
     </div>
   </a>
-`).join('');
+  `;
+}).join('');
 
 const homeMainHtml = `
   <!-- Editorial Hero Section -->
@@ -851,14 +876,14 @@ let sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://
 sitemapXml += `  <url>\n    <loc>${baseUrl}/</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>\n`;
 
 // 2) 4대 정책 페이지
-sitemapXml += `  <url>\n    <loc>${baseUrl}/about</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
-sitemapXml += `  <url>\n    <loc>${baseUrl}/privacy</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
-sitemapXml += `  <url>\n    <loc>${baseUrl}/terms</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
-sitemapXml += `  <url>\n    <loc>${baseUrl}/contact</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
+sitemapXml += `  <url>\n    <loc>${baseUrl}/about/</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
+sitemapXml += `  <url>\n    <loc>${baseUrl}/privacy/</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
+sitemapXml += `  <url>\n    <loc>${baseUrl}/terms/</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
+sitemapXml += `  <url>\n    <loc>${baseUrl}/contact/</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
 
 // 3) 50개 아티클
 articles.forEach(art => {
-  sitemapXml += `  <url>\n    <loc>${baseUrl}/article/${art.slug}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.9</priority>\n  </url>\n`;
+  sitemapXml += `  <url>\n    <loc>${baseUrl}/article/${art.slug}/</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.9</priority>\n  </url>\n`;
 });
 
 sitemapXml += `</urlset>`;

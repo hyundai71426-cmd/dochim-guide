@@ -319,27 +319,38 @@
       `).join('')}
     `;
 
-    const cardsHtml = filtered.map(art => `
-      <a href="/article/${art.slug || art.id}" class="article-card">
-        <div>
-          <div class="card-top">
-            <span class="card-vol">VOL.${String(art.order).padStart(2, '0')} · ${(art.category || '').split('.')[0]}</span>
-            <span class="card-time">⏱️ ${art.readingTime || '4분'} 읽기</span>
-          </div>
-          <h3 class="card-title">${art.title}</h3>
-          <p class="card-summary">${parseInlineMarkdown(art.easySummary || art.summary)}</p>
+    const cardsHtml = filtered.map(art => {
+      const orderStr = String(art.order).padStart(2, '0');
+      const thumbSrc = art.thumbnail || `/images/thumbnails/thumb_post${orderStr}.webp`;
+      const altText = art.alt || `VOL.${orderStr} ${art.title} - 도심복합개발 썸네일`;
+      return `
+      <a href="/article/${art.slug || art.id}/" class="article-card">
+        <div class="card-thumb-wrapper">
+          <img src="${thumbSrc}" alt="${altText}" class="card-thumb-img" loading="lazy">
+          <span class="card-vol-badge">VOL.${orderStr}</span>
         </div>
-        <div class="card-bottom">
-          <div class="card-tags">
-            ${(art.tags || []).slice(0, 3).map(t => `<span class="tag-badge">#${t}</span>`).join('')}
+        <div class="card-content-wrap">
+          <div>
+            <div class="card-top">
+              <span class="card-vol">${(art.category || '').split('.')[0]}</span>
+              <span class="card-time">⏱️ ${art.readingTime || '4분'} 읽기</span>
+            </div>
+            <h3 class="card-title">${art.title}</h3>
+            <p class="card-summary">${parseInlineMarkdown(art.easySummary || art.summary)}</p>
           </div>
-          <span class="card-read-action">
-            바로 읽기
-            <span class="material-symbols-outlined icon-sm">arrow_forward</span>
-          </span>
+          <div class="card-bottom">
+            <div class="card-tags">
+              ${(art.tags || []).slice(0, 3).map(t => `<span class="tag-badge">#${t}</span>`).join('')}
+            </div>
+            <span class="card-read-action">
+              바로 읽기
+              <span class="material-symbols-outlined icon-sm">arrow_forward</span>
+            </span>
+          </div>
         </div>
       </a>
-    `).join('');
+      `;
+    }).join('');
 
     elements.mainContainer.innerHTML = `
       <!-- Editorial Hero Section -->
@@ -610,6 +621,11 @@
               <span>⏱️ ${article.readingTime || '4분'} 완독 &nbsp;|&nbsp; 👥 추천: ${(article.targetAudience || ['전체']).join(', ')}</span>
             </div>
           </header>
+
+          <!-- 아티클 대표 썸네일 히어로 배너 (LCP 최적화) -->
+          <div class="reader-hero-thumb">
+            <img src="${article.thumbnail || `/images/thumbnails/thumb_post${String(article.order).padStart(2, '0')}.webp`}" alt="${article.alt || article.title}" class="reader-thumb-img" width="560" height="560" fetchpriority="high">
+          </div>
 
           <!-- 3초 핵심 요약 박스 (Executive Summary) -->
           <div class="executive-summary-box">

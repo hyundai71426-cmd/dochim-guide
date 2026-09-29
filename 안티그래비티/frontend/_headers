@@ -1,0 +1,26 @@
+# Cloudflare Pages Security & Performance Headers
+
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), camera=(), microphone=()
+  X-Robots-Tag: all
+
+# 1년 불변 캐싱 (WebP 썸네일 및 정적 에셋)
+/images/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/css/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/js/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# HTML 문서 캐싱 (최신 상태 유지 및 빠른 검증)
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/article/*
+  Cache-Control: public, max-age=0, must-revalidate
