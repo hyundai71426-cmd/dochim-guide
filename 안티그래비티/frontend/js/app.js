@@ -355,42 +355,48 @@
     elements.mainContainer.innerHTML = `
       <!-- Editorial Hero Section -->
       <section class="hero-section">
+        <div class="hero-status-pill">
+          <span class="status-pulse-dot"></span>
+          <span class="status-pill-text">2026 최신 법령·선도단지 반영 · ${state.articles.length}부작 실전 완결 백과사전</span>
+        </div>
         <span class="hero-tag">
           <span class="material-symbols-outlined icon-sm">verified</span>
           국토교통부 공공·민간 도심복합개발 실전 백과사전
         </span>
         <h1 class="hero-title">도심복합개발 완벽 정복 백과사전</h1>
         <p class="hero-subtitle">
-          기초 개념부터 역세권·준공업·저층주거 지정기준, 사업성 분석, 140% 용적률 상향, 세제 감면, 실무 Q&A까지<br>
+          기초 개념부터 증산4구역·방학역 선도단지, 2026 민간공모 전략, 140% 용적률 상향, 세제 감면, 신탁방식 안전성까지<br>
           유기적인 지식망으로 쉽고 명쾌하게 마스터하세요.
         </p>
 
         <!-- Search Bar -->
         <div class="search-container">
           <span class="material-symbols-outlined search-icon">search</span>
-          <input type="text" id="searchInput" class="search-input" placeholder="궁금한 키워드를 검색하세요 (예: 역세권, 분담금, 용적률, 1+1, 세제)" value="${state.searchQuery}">
+          <input type="text" id="searchInput" class="search-input" placeholder="궁금한 키워드를 검색하세요 (예: 증산4구역, 방학역, 용적률, 현물선납, 신탁, 청약)" value="${state.searchQuery}">
           <button class="search-clear-btn" id="searchClearBtn" title="검색어 지우기">&times;</button>
         </div>
 
         <!-- Quick Keyword Chips -->
         <div class="quick-keywords">
-          <span class="quick-label">추천 키워드:</span>
-          <span class="quick-tag" data-kw="역세권">#역세권 고밀개발</span>
-          <span class="quick-tag" data-kw="용적률">#140% 용적률</span>
+          <span class="quick-label">실시간 핫이슈:</span>
+          <span class="quick-tag" data-kw="증산4">#증산4·연신내</span>
+          <span class="quick-tag" data-kw="방학역">#방학역 전국1호 착공</span>
+          <span class="quick-tag" data-kw="용적률">#140% 용적률 상향</span>
           <span class="quick-tag" data-kw="현물선납">#현물선납 세제특례</span>
           <span class="quick-tag" data-kw="동의율">#토지주 동의율</span>
           <span class="quick-tag" data-kw="1+1">#1+1 우선공급</span>
-          <span class="quick-tag" data-kw="상가">#상가영업보상</span>
+          <span class="quick-tag" data-kw="신탁">#신탁방식 안전성</span>
+          <span class="quick-tag" data-kw="철도지하화">#철도지하화 선도</span>
         </div>
 
         <!-- Key Status Statistics Grid -->
         <div class="hero-stats-grid">
           <div class="stat-item">
-            <div class="stat-val">50부작</div>
+            <div class="stat-val">${state.articles.length}부작 완결</div>
             <div class="stat-label">실전 전문 연재 완비</div>
           </div>
           <div class="stat-item">
-            <div class="stat-val">8대 영역</div>
+            <div class="stat-val">${state.categories.length}대 파트</div>
             <div class="stat-label">체계적 지식 아카이브</div>
           </div>
           <div class="stat-item">
@@ -398,9 +404,186 @@
             <div class="stat-label">법적 상한 용적률 완화</div>
           </div>
           <div class="stat-item">
-            <div class="stat-val">100% 실전</div>
-            <div class="stat-label">3초 요약 & Q&A 탑재</div>
+            <div class="stat-val">100% 무결점</div>
+            <div class="stat-label">2026 공공·민간 팩트체크</div>
           </div>
+        </div>
+      </section>
+
+      <!-- 맞춤형 페르소나 내비게이터 (Persona Navigator) -->
+      <section class="persona-section" id="personaSection">
+        <div class="section-header-compact">
+          <span class="section-badge"><span class="material-symbols-outlined icon-sm">explore</span> 맞춤형 내비게이터</span>
+          <h2 class="section-title-compact">내 상황에 꼭 맞는 핵심 가이드</h2>
+          <p class="section-desc-compact">소유자, 투자자, 청약대기자, 세입자 등 각자의 이해관계에 최적화된 필수 권리 분석과 전략을 빠르게 확인하세요.</p>
+        </div>
+        <div class="persona-grid">
+          <div class="persona-card" data-persona="landowner" data-query="토지주">
+            <div class="persona-icon-wrap icon-landowner">
+              <span class="material-symbols-outlined">home_work</span>
+            </div>
+            <div class="persona-body">
+              <div class="persona-role">토지등소유자 (원주민·건물주)</div>
+              <p class="persona-desc">내 땅을 뺏기지 않고 권리가액·우선공급권(1+1)·양도세 비과세 혜택을 극대화하는 법</p>
+              <span class="persona-action">
+                소유자 핵심 가이드
+                <span class="material-symbols-outlined icon-sm">arrow_forward</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="persona-card" data-persona="investor" data-query="투자">
+            <div class="persona-icon-wrap icon-investor">
+              <span class="material-symbols-outlined">trending_up</span>
+            </div>
+            <div class="persona-body">
+              <div class="persona-role">실투자자 & 갭투자자</div>
+              <p class="persona-desc">현금청산 날벼락 피하는 권리산정기준일 검증, 전매제한 해제, 저평가 후보지 선별법</p>
+              <span class="persona-action">
+                투자자 전략 가이드
+                <span class="material-symbols-outlined icon-sm">arrow_forward</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="persona-card" data-persona="subscriber" data-query="청약">
+            <div class="persona-icon-wrap icon-subscriber">
+              <span class="material-symbols-outlined">how_to_reg</span>
+            </div>
+            <div class="persona-body">
+              <div class="persona-role">무주택 청약대기자</div>
+              <p class="persona-desc">서울·수도권 역세권 핵심 입지 일반분양 자격, 특별공급 추첨 비율 및 당첨 전략</p>
+              <span class="persona-action">
+                청약대기자 가이드
+                <span class="material-symbols-outlined icon-sm">arrow_forward</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="persona-card" data-persona="tenant" data-query="세입자">
+            <div class="persona-icon-wrap icon-tenant">
+              <span class="material-symbols-outlined">storefront</span>
+            </div>
+            <div class="persona-body">
+              <div class="persona-role">상가영업자 & 세입자</div>
+              <p class="persona-desc">영업손실 4개월 휴업보상, 상가 분양권 취득 기준, 주거세입자 임대주택 우선입주권</p>
+              <span class="persona-action">
+                세입자 보상 가이드
+                <span class="material-symbols-outlined icon-sm">arrow_forward</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2026 선도구역 & 핫이슈 스포트라이트 (Featured Spotlight Grid) -->
+      <section class="featured-spotlight-section">
+        <div class="section-header-compact">
+          <span class="section-badge badge-hot"><span class="material-symbols-outlined icon-sm">local_fire_department</span> 2026 최신 핫이슈</span>
+          <h2 class="section-title-compact">2026 선도구역 & 핵심 제도 집중 해부</h2>
+          <p class="section-desc-compact">전국 1호 착공 단지부터 3,500세대 최대어 증산4구역, 2026 신규 공모 전략까지 엄선한 필독 아티클</p>
+        </div>
+
+        <div class="featured-spotlight-grid">
+          <!-- Spotlight 1: Jeungsan 4 & Yeonsinnae -->
+          <a href="/article/jeungsan-4-yeonsinnae-analysis/" class="spotlight-card spotlight-hero-card">
+            <div class="spotlight-thumb-wrap">
+              <img src="/images/thumbnails/thumb_post51.webp" alt="VOL.51 증산4구역·연신내역 실전 분석 썸네일" class="spotlight-thumb-img" loading="lazy">
+              <span class="spotlight-flag-badge">👑 전국 최대어 3,509세대</span>
+            </div>
+            <div class="spotlight-content">
+              <div>
+                <div class="spotlight-meta">
+                  <span class="spotlight-vol">VOL.51</span>
+                  <span class="spotlight-part">PART 9. 선도 구역 정밀 해부</span>
+                </div>
+                <h3 class="spotlight-title">증산4구역·연신내역의 명암: 공공복합 1호 성공 구역의 실제 분담금과 프리미엄</h3>
+                <p class="spotlight-desc">사업계획승인 고시 완료! DL이앤씨·삼성물산 시공 역세권 고밀개발 랜드마크의 비례율, 분담금, 일반분양 일정 완벽 총정리.</p>
+              </div>
+              <div class="spotlight-footer">
+                <span class="spotlight-tag">#증산4구역 #연신내역</span>
+                <span class="spotlight-read-btn">
+                  심층 분석 읽기
+                  <span class="material-symbols-outlined icon-sm">arrow_forward</span>
+                </span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Spotlight 2: Banghak & Ssangmun -->
+          <a href="/article/ssangmun-banghak-station-development/" class="spotlight-card">
+            <div class="spotlight-thumb-wrap">
+              <img src="/images/thumbnails/thumb_post52.webp" alt="VOL.52 방학역·쌍문역 실전 분석 썸네일" class="spotlight-thumb-img" loading="lazy">
+              <span class="spotlight-flag-badge badge-accent">🏗️ 전국 1호 착공 돌입</span>
+            </div>
+            <div class="spotlight-content">
+              <div>
+                <div class="spotlight-meta">
+                  <span class="spotlight-vol">VOL.52</span>
+                  <span class="spotlight-part">PART 9. 선도 구역 정밀 해부</span>
+                </div>
+                <h3 class="spotlight-title">쌍문역 동측·서측 & 방학역세권: 도봉구 3대 역세권 복합개발 진행상황 총정리</h3>
+                <p class="spotlight-desc">2026년 철거 개시 전국 1호 착공! 두산건설 시공 및 2029년 입주 목표, 쌍문동 동측 이주 진행 상황 총정리.</p>
+              </div>
+              <div class="spotlight-footer">
+                <span class="spotlight-tag">#방학역착공 #쌍문동</span>
+                <span class="spotlight-read-btn">
+                  바로 읽기
+                  <span class="material-symbols-outlined icon-sm">arrow_forward</span>
+                </span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Spotlight 3: Private Contest 2026 -->
+          <a href="/article/private-urban-complex-contest-guide/" class="spotlight-card">
+            <div class="spotlight-thumb-wrap">
+              <img src="/images/thumbnails/thumb_post55.webp" alt="VOL.55 2026 민간도심복합 신규 공모 전략 썸네일" class="spotlight-thumb-img" loading="lazy">
+              <span class="spotlight-flag-badge">📋 2026 공모 전략</span>
+            </div>
+            <div class="spotlight-content">
+              <div>
+                <div class="spotlight-meta">
+                  <span class="spotlight-vol">VOL.55</span>
+                  <span class="spotlight-part">PART 10. 2026 공모 & 특수 권리</span>
+                </div>
+                <h3 class="spotlight-title">2025~2026 지자체 '민간도심복합개발 1차 후보지 공모' 신청 요건과 제안서 통과 3대 비결</h3>
+                <p class="spotlight-desc">토지주 1/2 동의 요건, 1군 시공사 컨소시엄 구성 요령, 신탁사 수수료 협상 및 주민 제안서 작성 실무 가이드.</p>
+              </div>
+              <div class="spotlight-footer">
+                <span class="spotlight-tag">#민간복합공모 #시공사선정</span>
+                <span class="spotlight-read-btn">
+                  바로 읽기
+                  <span class="material-symbols-outlined icon-sm">arrow_forward</span>
+                </span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Spotlight 4: Trust comparison -->
+          <a href="/article/trust-company-bankruptcy-hug-protection/" class="spotlight-card">
+            <div class="spotlight-thumb-wrap">
+              <img src="/images/thumbnails/thumb_post58.webp" alt="VOL.58 신탁방식 도심복합 vs 공공시행 심층 비교 썸네일" class="spotlight-thumb-img" loading="lazy">
+              <span class="spotlight-flag-badge badge-safe">🛡️ 신탁사 부도 안전장치</span>
+            </div>
+            <div class="spotlight-content">
+              <div>
+                <div class="spotlight-meta">
+                  <span class="spotlight-vol">VOL.58</span>
+                  <span class="spotlight-part">PART 10. 2026 공모 & 특수 권리</span>
+                </div>
+                <h3 class="spotlight-title">신탁사 부도나면 내 아파트는? 신탁계정대여금과 HUG 공적보증 3중 안전장치</h3>
+                <p class="spotlight-desc">신탁법 제22조·제24조에 따른 독립재산 보호! 신탁사 파산 시에도 토지주 자산이 100% 안전한 법적 원리 해설.</p>
+              </div>
+              <div class="spotlight-footer">
+                <span class="spotlight-tag">#신탁방식보호 #신탁법제22조</span>
+                <span class="spotlight-read-btn">
+                  바로 읽기
+                  <span class="material-symbols-outlined icon-sm">arrow_forward</span>
+                </span>
+              </div>
+            </div>
+          </a>
         </div>
       </section>
 
@@ -425,6 +608,34 @@
       </section>
 
       ${createAdSenseSlot('하단 피드 배너')}
+
+      <!-- E-E-A-T 공인중개사 & 정비사업 전문가 팩트체크 배너 (Expert Trust Banner) -->
+      <section class="expert-trust-banner">
+        <div class="trust-banner-badge">
+          <span class="material-symbols-outlined trust-icon">verified_user</span>
+        </div>
+        <div class="trust-banner-body">
+          <div class="trust-banner-header">
+            <h3 class="trust-title">공인중개사 & 정비사업 실무 전문가 팩트체크 검증</h3>
+            <span class="trust-cert-pill">E-E-A-T 100% 검증</span>
+          </div>
+          <p class="trust-desc">
+            본 포털의 모든 아티클은 <strong>현대공인중개사사무소 대표 백명건 공인중개사</strong>가
+            국토교통부 『공공주택특별법』(2029년 일몰 연장) 및 『도심복합개발법』(2026년 최신 제정법률),
+            법제처 최신 유권해석, 8·8 주택공급 확대방안을 대조하여 교차 검증한 고신뢰 실무 지식 백과사전입니다.
+          </p>
+          <div class="trust-checkpoints">
+            <span class="checkpoint-item"><span class="material-symbols-outlined icon-xs">check_circle</span> 8·8 대책 인허가 단축 반영</span>
+            <span class="checkpoint-item"><span class="material-symbols-outlined icon-xs">check_circle</span> 공공복합 2029 일몰 투트랙 반영</span>
+            <span class="checkpoint-item"><span class="material-symbols-outlined icon-xs">check_circle</span> 스트레스 DSR 2단계 대출 한도 검증</span>
+            <span class="checkpoint-item"><span class="material-symbols-outlined icon-xs">check_circle</span> 신탁법상 고유재산 분리 보호 규정 검증</span>
+          </div>
+        </div>
+        <div class="trust-banner-action">
+          <a href="/about" class="btn-trust-primary">검증 전문가 소개</a>
+          <a href="/contact" class="btn-trust-secondary">1:1 실무 문의하기</a>
+        </div>
+      </section>
     `;
 
     // 이벤트 바인딩
@@ -451,11 +662,31 @@
       });
     }
 
+    // 페르소나 카드 클릭 이벤트
+    document.querySelectorAll('.persona-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const q = card.dataset.query;
+        if (q) {
+          state.searchQuery = q;
+          state.currentCategory = 'all';
+          renderHomeView();
+          const filterTabsElem = document.getElementById('filterTabs');
+          if (filterTabsElem) {
+            filterTabsElem.scrollIntoView({ behavior: 'smooth' });
+          }
+        }
+      });
+    });
+
     // 퀵 태그 클릭
     document.querySelectorAll('.quick-tag').forEach(tag => {
       tag.addEventListener('click', () => {
         state.searchQuery = tag.dataset.kw;
         renderHomeView();
+        const filterTabsElem = document.getElementById('filterTabs');
+        if (filterTabsElem) {
+          filterTabsElem.scrollIntoView({ behavior: 'smooth' });
+        }
       });
     });
 
