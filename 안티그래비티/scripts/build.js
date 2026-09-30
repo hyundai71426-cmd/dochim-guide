@@ -198,12 +198,12 @@ function parseMarkdownToHtml(content) {
 // ==========================================
 // 2. 50개 아티클 정적 HTML 순차적 생성 (1편부터 50편까지 차례대로 실행)
 // ==========================================
-console.log('▶ [1단계] 50개 아티클 상세 페이지 순차적 SSG 생성 시작...\n');
+console.log('▶ [1단계] ${articles.length}개 아티클 상세 페이지 순차적 SSG 생성 시작...\n');
 
 for (let i = 0; i < articles.length; i++) {
   const article = articles[i];
   const orderNum = String(article.order).padStart(2, '0');
-  console.log(`  [${orderNum}/50] VOL.${orderNum} 처리 중: "${article.title}"...`);
+  console.log(`  [${orderNum}/${articles.length}] VOL.${orderNum} 처리 중: "${article.title}"...`);
 
   const dirPath = path.join(frontendDir, 'article', article.slug);
   if (!fs.existsSync(dirPath)) {
@@ -513,10 +513,10 @@ for (let i = 0; i < articles.length; i++) {
   );
 
   fs.writeFileSync(path.join(dirPath, 'index.html'), pageHtml, 'utf8');
-  console.log(`  └─ ✅ [${orderNum}/50] ${article.slug}/index.html 저장 완료 (정적 본문 크기: ${articleReaderHtml.length} bytes)`);
+  console.log(`  └─ ✅ [${orderNum}/${articles.length}] ${article.slug}/index.html 저장 완료 (정적 본문 크기: ${articleReaderHtml.length} bytes)`);
 }
 
-console.log('\n✅ 50개 전체 아티클 순차적 생성 완료!\n');
+console.log('\n✅ ${articles.length}개 전체 아티클 순차적 생성 완료!\n');
 
 // ==========================================
 // 3. 4대 정책 페이지 (About, Privacy, Terms, Contact) 정적 생성
@@ -826,7 +826,7 @@ const homeMainHtml = `
     <!-- Key Status Statistics Grid -->
     <div class="hero-stats-grid">
       <div class="stat-item">
-        <div class="stat-val">50부작</div>
+        <div class="stat-val">${articles.length}부작</div>
         <div class="stat-label">실전 전문 연재 완비</div>
       </div>
       <div class="stat-item">
@@ -863,7 +863,7 @@ let finalIndexHtml = templateHtml.replace(
 );
 
 fs.writeFileSync(indexPath, finalIndexHtml, 'utf8');
-console.log(`  └─ ✅ frontend/index.html 메인 50개 카드 정적 렌더링 완료 (${cardsHtml.length} bytes)\n`);
+console.log(`  └─ ✅ frontend/index.html 메인 ${articles.length}개 카드 정적 렌더링 완료 (${cardsHtml.length} bytes)\n`);
 
 // ==========================================
 // 5. 사이트맵(sitemap.xml) 생성 (55개 전체 URL)
@@ -888,7 +888,7 @@ articles.forEach(art => {
 
 sitemapXml += `</urlset>`;
 fs.writeFileSync(path.join(frontendDir, 'sitemap.xml'), sitemapXml, 'utf8');
-console.log(`  └─ ✅ sitemap.xml 생성 완료 (총 55개 URL 등록)\n`);
+console.log(`  └─ ✅ sitemap.xml 생성 완료 (총 ${5 + articles.length}개 URL 등록)\n`);
 
 // ==========================================
 // 6. Robots.txt 생성
