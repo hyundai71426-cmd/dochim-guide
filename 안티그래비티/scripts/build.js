@@ -24,6 +24,13 @@ console.log('====================================================\n');
 // ==========================================
 // 1. 마크다운 파서 유틸리티
 // ==========================================
+function calcReadingTime(content) {
+  if (!content) return '4분';
+  const textLen = String(content).replace(/\s+/g, '').length;
+  const mins = Math.max(3, Math.ceil(textLen / 450));
+  return `${mins}분`;
+}
+
 function parseInlineMarkdown(text) {
   if (!text) return '';
   return String(text)
@@ -240,7 +247,7 @@ for (let i = 0; i < articles.length; i++) {
     highlightText: article.title,
     items: [
       { icon: '💡', title: '핵심 포인트', desc: article.summary },
-      { icon: '⏱️', title: '읽는 시간', desc: '4분 완성' },
+      { icon: '⏱️', title: '읽는 시간', desc: `${calcReadingTime(article.content)} 완독` },
       { icon: '🔗', title: '연계 학습', desc: '3편의 연계 지식' }
     ]
   };
@@ -339,8 +346,8 @@ for (let i = 0; i < articles.length; i++) {
           </div>
           <h1 class="reader-title">${article.title}</h1>
           <div class="reader-meta-bottom">
-            <span class="reader-author">🏛️ 도심복합개발 실전 연구팀 (검증 전문가: 백명건 대표)</span>
-            <span>⏱️ ${article.readingTime || '4분'} 완독 &nbsp;|&nbsp; 👥 추천: ${(article.targetAudience || ['전체']).join(', ')}</span>
+            <span class="reader-author">🏛️ 도심복합개발 정책연구팀 (수석연구위원 백명건)</span>
+            <span>⏱️ ${article.readingTime || calcReadingTime(article.content)} 완독 &nbsp;|&nbsp; 👥 대상: ${(article.targetAudience || ['전체']).join(', ')}</span>
           </div>
         </header>
 
@@ -377,26 +384,39 @@ for (let i = 0; i < articles.length; i++) {
         <!-- 실무 Q&A 섹션 -->
         ${qnaHtml}
 
-        <!-- E-E-A-T 저자 프로필 박스 -->
+        <!-- E-E-A-T 정책연구팀 저자 프로필 박스 -->
         <div class="author-profile-box">
           <div class="author-avatar">🏛️</div>
           <div class="author-info">
             <div class="author-badge">
               <span class="material-symbols-outlined icon-sm" style="font-size:0.9rem;">verified</span>
-              전문가 검증 칼럼 (E-E-A-T)
+              도심복합개발 정책연구 포털 편찬위원회
             </div>
             <div class="author-name">
-              현대공인중개사사무소 · 도심복합개발 연구팀
+              백명건 수석연구위원 · 정책기획팀
             </div>
             <div class="author-desc">
-              공공도심복합사업 및 민간도심복합개발법 실전 정책·법률·사업성 분석 전문. 서울시 및 수도권 주요 정비사업 구역의 권리분석 및 세제 컨설팅을 제공합니다.
+              국토교통부 공공도심복합사업 및 민간도심복합개발법 실전 정책·법령 조문·사업성 모델을 심층 분석하여, 토지등소유자와 국민을 위한 공익적 정책 해설과 권리 분석 연구를 수행합니다.
             </div>
             <div class="author-meta">
-              <span>📍 서울특별시 서초구 반포동 714-26 1층</span>
-              <span>대표: 백명건 (등록번호: 11650-2016-00300)</span>
-              <span>문의: 02-3446-2361</span>
+              <span>🏛️ 도심복합개발 공공·민간 정책 아카이브</span>
+              <span>📑 법령 및 국토부 고시 기준 팩트체크 완료</span>
+              <span>📧 학술 문의 및 제보: research@dochim.kr</span>
             </div>
           </div>
+        </div>
+
+        <!-- 공식 법령 및 공공 출처 박스 -->
+        <div class="sources-reference-box" style="margin: 1.5rem 0; padding: 1.2rem 1.5rem; background: var(--bg-surface-low); border: 1.5px solid var(--border-color); border-radius: var(--radius-md);">
+          <div style="font-weight: 700; color: var(--color-primary); font-size: 0.95rem; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem;">
+            <span class="material-symbols-outlined icon-sm" style="color: var(--color-secondary);">menu_book</span>
+            공식 법령 및 공공 출처 (Official Reference)
+          </div>
+          <ul style="margin: 0; padding-left: 1.2rem; font-size: 0.88rem; color: var(--text-secondary); line-height: 1.8;">
+            <li>국가법령정보센터 (law.go.kr) 「도심 복합개발 지원에 관한 법률」 및 동법 시행령</li>
+            <li>국토교통부 도심공공주택복합사업 업무처리지침 및 후보지 지구지정 고시문</li>
+            <li>서울특별시 정비사업 종합 정보 포털 및 자치구 정비계획 열람공고</li>
+          </ul>
         </div>
 
         <!-- 이전/다음 글 네비게이션 -->
@@ -429,18 +449,11 @@ for (let i = 0; i < articles.length; i++) {
         "author": {
           "@type": "Person",
           "name": "백명건",
-          "jobTitle": "대표 공인중개사",
+          "jobTitle": "수석연구위원",
           "worksFor": {
-            "@type": "RealEstateAgent",
-            "name": "현대공인중개사사무소",
-            "telephone": "02-3446-2361",
-            "address": {
-              "@type": "PostalAddress",
-              "streetAddress": "반포동 714-26 1층",
-              "addressLocality": "서초구",
-              "addressRegion": "서울특별시",
-              "addressCountry": "KR"
-            }
+            "@type": "Organization",
+            "name": "도심복합개발 정책연구 포털 편찬위원회",
+            "url": baseUrl
           }
         },
         "publisher": {
@@ -552,15 +565,14 @@ const aboutContent = `
         • <strong>Interconnected:</strong> 단편적 지식이 아닌 유기적 연계를 통한 입체적 이해 지원
       </blockquote>
 
-      <h3>3. 운영 주체 및 자격 정보</h3>
+      <h3>3. 연구진 및 자격 안내</h3>
       <div style="background: var(--bg-surface-low); border: 1.5px solid var(--border-color); border-radius: var(--radius-md); padding: 1.2rem 1.5rem; margin: 1.2rem 0;">
-        <strong style="color: var(--color-primary); font-size: 1.05rem;">🏢 현대공인중개사사무소</strong>
+        <strong style="color: var(--color-primary); font-size: 1.05rem;">🏛️ 도심복합개발 정책연구 포털 편찬위원회</strong>
         <ul style="margin: 0.6rem 0 0 1.2rem; line-height: 1.8;">
-          <li><strong>대표 공인중개사:</strong> 백명건</li>
-          <li><strong>주소:</strong> 서울특별시 서초구 반포동 714-26 1층</li>
-          <li><strong>등록번호:</strong> 11650-2016-00300</li>
-          <li><strong>대표번호:</strong> 02-3446-2361 &nbsp;|&nbsp; <strong>팩스:</strong> 02-3446-2711</li>
-          <li><strong>전문 분야:</strong> 공공도심복합사업, 민간도심복합개발법, 정비사업 권리분석 및 세무 자문</li>
+          <li><strong>수석연구위원:</strong> 백명건 (공인중개사 자격 보유 / 등록번호 11650-2016-00300)</li>
+          <li><strong>연구소 소재지:</strong> 서울특별시 서초구 반포동 714-26 1층</li>
+          <li><strong>주요 연구 분야:</strong> 공공도심복합사업(공특법), 민간도심복합개발법, 정비사업 비례율 및 권리분석 모델링</li>
+          <li><strong>학술 및 연구 문의:</strong> research@dochim.kr</li>
         </ul>
       </div>
 
@@ -578,6 +590,10 @@ let aboutHtml = templateHtml
   .replace(/<meta name="title" content=".*?">/, `<meta name="title" content="About Us · 도심복합개발 지식 포털 소개">`)
   .replace(/<meta name="description" content=".*?">/, `<meta name="description" content="도심복합개발 실전 지식 포털 설립 취지, E-E-A-T 전문성 및 운영팀 소개">`)
   .replace(/<meta property="og:url" content=".*?">/, `<meta property="og:url" content="${baseUrl}/about/">`)
+  .replace(/<meta property="og:title" content=".*?">/, `<meta property="og:title" content="About Us · 도심복합개발 지식 포털 소개">`)
+  .replace(/<meta property="og:description" content=".*?">/, `<meta property="og:description" content="도심복합개발 실전 지식 포털 설립 취지, E-E-A-T 전문성 및 운영팀 소개">`)
+  .replace(/<meta property="twitter:title" content=".*?">/, `<meta property="twitter:title" content="About Us · 도심복합개발 지식 포털 소개">`)
+  .replace(/<meta property="twitter:description" content=".*?">/, `<meta property="twitter:description" content="도심복합개발 실전 지식 포털 설립 취지, E-E-A-T 전문성 및 운영팀 소개">`)
   .replace(/<main class="main-wrapper" id="mainContainer">[\s\S]*?<\/main>/, `<main class="main-wrapper" id="mainContainer">\n${aboutContent}\n  </main>`);
 
 fs.writeFileSync(path.join(aboutDir, 'index.html'), aboutHtml, 'utf8');
@@ -633,6 +649,10 @@ let privacyHtml = templateHtml
   .replace(/<meta name="title" content=".*?">/, `<meta name="title" content="개인정보처리방침 (Privacy Policy) · 도심복합개발 지식 포털">`)
   .replace(/<meta name="description" content=".*?">/, `<meta name="description" content="도심복합개발 포털의 개인정보 보호 정책, Google AdSense 쿠키 규정 안내">`)
   .replace(/<meta property="og:url" content=".*?">/, `<meta property="og:url" content="${baseUrl}/privacy/">`)
+  .replace(/<meta property="og:title" content=".*?">/, `<meta property="og:title" content="개인정보처리방침 (Privacy Policy) · 도심복합개발 지식 포털">`)
+  .replace(/<meta property="og:description" content=".*?">/, `<meta property="og:description" content="도심복합개발 포털의 개인정보 보호 정책, Google AdSense 쿠키 규정 안내">`)
+  .replace(/<meta property="twitter:title" content=".*?">/, `<meta property="twitter:title" content="개인정보처리방침 (Privacy Policy) · 도심복합개발 지식 포털">`)
+  .replace(/<meta property="twitter:description" content=".*?">/, `<meta property="twitter:description" content="도심복합개발 포털의 개인정보 보호 정책, Google AdSense 쿠키 규정 안내">`)
   .replace(/<main class="main-wrapper" id="mainContainer">[\s\S]*?<\/main>/, `<main class="main-wrapper" id="mainContainer">\n${privacyContent}\n  </main>`);
 
 fs.writeFileSync(path.join(privacyDir, 'index.html'), privacyHtml, 'utf8');
@@ -675,6 +695,10 @@ let termsHtml = templateHtml
   .replace(/<meta name="title" content=".*?">/, `<meta name="title" content="이용약관 및 면책조항 (Terms of Service) · 도심복합개발 포털">`)
   .replace(/<meta name="description" content=".*?">/, `<meta name="description" content="도심복합개발 지식 포털 서비스 이용약관 및 투자/법률 면책조항">`)
   .replace(/<meta property="og:url" content=".*?">/, `<meta property="og:url" content="${baseUrl}/terms/">`)
+  .replace(/<meta property="og:title" content=".*?">/, `<meta property="og:title" content="이용약관 및 면책조항 (Terms of Service) · 도심복합개발 포털">`)
+  .replace(/<meta property="og:description" content=".*?">/, `<meta property="og:description" content="도심복합개발 지식 포털 서비스 이용약관 및 투자/법률 면책조항">`)
+  .replace(/<meta property="twitter:title" content=".*?">/, `<meta property="twitter:title" content="이용약관 및 면책조항 (Terms of Service) · 도심복합개발 포털">`)
+  .replace(/<meta property="twitter:description" content=".*?">/, `<meta property="twitter:description" content="도심복합개발 지식 포털 서비스 이용약관 및 투자/법률 면책조항">`)
   .replace(/<main class="main-wrapper" id="mainContainer">[\s\S]*?<\/main>/, `<main class="main-wrapper" id="mainContainer">\n${termsContent}\n  </main>`);
 
 fs.writeFileSync(path.join(termsDir, 'index.html'), termsHtml, 'utf8');
@@ -721,10 +745,10 @@ const contactContent = `
       </form>
 
       <div style="margin-top: 2rem; background: var(--bg-surface-low); border: 1.5px solid var(--border-color); border-radius: var(--radius-md); padding: 1.2rem 1.5rem;">
-        <strong style="color: var(--color-primary);">📞 연구팀 직통 연락처</strong>
+        <strong style="color: var(--color-primary);">🏛️ 정책연구 편찬위원회 연락처</strong>
         <p style="margin: 0.5rem 0 0; font-size: 0.88rem; color: var(--text-secondary);">
-          • 사무소: 현대공인중개사사무소 (대표: 백명건)<br>
-          • 대표전화: 02-3446-2361 &nbsp;|&nbsp; 팩스: 02-3446-2711<br>
+          • 주관: 도심복합개발 정책연구 포털 편찬위원회 (수석연구위원: 백명건)<br>
+          • 공식 이메일: research@dochim.kr<br>
           • 주소: 서울특별시 서초구 반포동 714-26 1층
         </p>
       </div>
@@ -736,8 +760,12 @@ let contactHtml = templateHtml
   .replace(/<link rel="canonical" href=".*?">/, `<link rel="canonical" href="${baseUrl}/contact/">`)
   .replace(/<title>.*?<\/title>/, `<title>문의하기 (Contact Us) · 도심복합개발 지식 포털</title>`)
   .replace(/<meta name="title" content=".*?">/, `<meta name="title" content="문의하기 (Contact Us) · 도심복합개발 지식 포털">`)
-  .replace(/<meta name="description" content=".*?">/, `<meta name="description" content="도심복합개발 실전 연구팀 및 현대공인중개사사무소 문의 채널">`)
+  .replace(/<meta name="description" content=".*?">/, `<meta name="description" content="도심복합개발 정책연구 포털 편찬위원회 문의 및 제보 채널">`)
   .replace(/<meta property="og:url" content=".*?">/, `<meta property="og:url" content="${baseUrl}/contact/">`)
+  .replace(/<meta property="og:title" content=".*?">/, `<meta property="og:title" content="문의하기 (Contact Us) · 도심복합개발 지식 포털">`)
+  .replace(/<meta property="og:description" content=".*?">/, `<meta property="og:description" content="도심복합개발 정책연구 포털 편찬위원회 문의 및 제보 채널">`)
+  .replace(/<meta property="twitter:title" content=".*?">/, `<meta property="twitter:title" content="문의하기 (Contact Us) · 도심복합개발 지식 포털">`)
+  .replace(/<meta property="twitter:description" content=".*?">/, `<meta property="twitter:description" content="도심복합개발 정책연구 포털 편찬위원회 문의 및 제보 채널">`)
   .replace(/<main class="main-wrapper" id="mainContainer">[\s\S]*?<\/main>/, `<main class="main-wrapper" id="mainContainer">\n${contactContent}\n  </main>`);
 
 fs.writeFileSync(path.join(contactDir, 'index.html'), contactHtml, 'utf8');
@@ -773,7 +801,7 @@ const cardsHtml = articles.map(art => {
       <div>
         <div class="card-top">
           <span class="card-vol">${(art.category || '').split('.')[0]}</span>
-          <span class="card-time">⏱️ ${art.readingTime || '4분'} 읽기</span>
+          <span class="card-time">⏱️ ${art.readingTime || calcReadingTime(art.content)} 읽기</span>
         </div>
         <h3 class="card-title">${art.title}</h3>
         <p class="card-summary">${parseInlineMarkdown(art.easySummary || art.summary)}</p>
@@ -844,8 +872,8 @@ const homeMainHtml = `
         <div class="stat-label">법적 상한 용적률 완화</div>
       </div>
       <div class="stat-item">
-        <div class="stat-val">100% 무결점</div>
-        <div class="stat-label">2026 공공·민간 팩트체크</div>
+        <div class="stat-val">공식 팩트체크</div>
+        <div class="stat-label">국토부 법령·지침 반영</div>
       </div>
     </div>
   </section>
@@ -938,7 +966,7 @@ const homeMainHtml = `
               <span class="spotlight-part">PART 9. 선도 구역 정밀 해부</span>
             </div>
             <h3 class="spotlight-title">증산4구역·연신내역의 명암: 공공복합 1호 성공 구역의 실제 분담금과 프리미엄</h3>
-            <p class="spotlight-desc">사업계획승인 고시 완료! DL이앤씨·삼성물산 시공 역세권 고밀개발 랜드마크의 비례율, 분담금, 일반분양 일정 완벽 총정리.</p>
+            <p class="spotlight-desc">사업계획승인 고시 완료! DL이앤씨·삼성물산 시공 역세권 고밀개발 랜드마크의 비례율, 분담금, 일반분양 일정과 사업성 총정리.</p>
           </div>
           <div class="spotlight-footer">
             <span class="spotlight-tag">#증산4구역 #연신내역</span>
@@ -1013,7 +1041,7 @@ const homeMainHtml = `
               <span class="spotlight-part">PART 10. 2026 공모 & 특수 권리</span>
             </div>
             <h3 class="spotlight-title">신탁사 부도나면 내 아파트는? 신탁계정대여금과 HUG 공적보증 3중 안전장치</h3>
-            <p class="spotlight-desc">신탁법 제22조·제24조에 따른 독립재산 보호! 신탁사 파산 시에도 토지주 자산이 100% 안전한 법적 원리 해설.</p>
+            <p class="spotlight-desc">신탁법 제22조·제24조에 따른 독립재산 보호! 신탁사 파산 시에도 토지주 자산이 안전하게 보호되는 법적 원리 해설.</p>
           </div>
           <div class="spotlight-footer">
             <span class="spotlight-tag">#신탁방식보호 #신탁법제22조</span>
@@ -1046,11 +1074,11 @@ const homeMainHtml = `
     </div>
     <div class="trust-banner-body">
       <div class="trust-banner-header">
-        <h3 class="trust-title">공인중개사 & 정비사업 실무 전문가 팩트체크 검증</h3>
-        <span class="trust-cert-pill">E-E-A-T 100% 검증</span>
+        <h3 class="trust-title">도심복합개발 법령 및 실무 팩트체크 검증</h3>
+        <span class="trust-cert-pill">법령·고시 대조 완료</span>
       </div>
       <p class="trust-desc">
-        본 포털의 모든 아티클은 <strong>현대공인중개사사무소 대표 백명건 공인중개사</strong>가
+        본 포털의 모든 아티클은 <strong>도심복합개발 정책연구팀(수석연구위원 백명건)</strong>이
         국토교통부 『공공주택특별법』(2029년 일몰 연장) 및 『도심복합개발법』(2026년 최신 제정법률),
         법제처 최신 유권해석, 8·8 주택공급 확대방안을 대조하여 교차 검증한 고신뢰 실무 지식 백과사전입니다.
       </p>
@@ -1062,8 +1090,8 @@ const homeMainHtml = `
       </div>
     </div>
     <div class="trust-banner-action">
-      <a href="/about" class="btn-trust-primary">검증 전문가 소개</a>
-      <a href="/contact" class="btn-trust-secondary">1:1 실무 문의하기</a>
+      <a href="/about" class="btn-trust-primary">연구위원 및 편찬위 소개</a>
+      <a href="/contact" class="btn-trust-secondary">문의 및 오류 제보</a>
     </div>
   </section>
 `;

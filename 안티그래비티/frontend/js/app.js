@@ -97,7 +97,9 @@
   window.navigateTo = navigateTo;
 
   async function handleRouting() {
-    const path = window.location.pathname;
+    let rawPath = window.location.pathname;
+    // URL 정규화: 끝 슬래시 제거 (루트 / 제외)
+    const path = (rawPath.length > 1 && rawPath.endsWith('/')) ? rawPath.slice(0, -1) : rawPath;
     window.scrollTo({ top: 0, behavior: 'instant' });
 
     // 네비게이션 링크 활성화 표시
@@ -109,7 +111,7 @@
     if (path === '/' || path === '') {
       renderHomeView();
     } else if (path.startsWith('/article/')) {
-      const articleId = path.replace('/article/', '');
+      const articleId = path.replace('/article/', '').replace(/\/$/, '');
       await renderArticleView(articleId);
     } else if (path === '/about') {
       renderAboutView();
@@ -142,6 +144,13 @@
       .replace(/__(.+?)__/g, '<strong>$1</strong>')
       .replace(/(?<!\*)\*([^\*\n]+?)\*(?!\*)/g, '<em>$1</em>')
       .replace(/`([^`\n]+)`/g, '<code style="padding: 0.15rem 0.45rem; background: var(--color-accent-subtle); color: var(--color-accent-hover); border-radius: 4px; font-weight: 700; font-size: 0.85em;">$1</code>');
+  }
+
+  function calcReadingTime(content) {
+    if (!content) return '4분';
+    const textLen = String(content).replace(/\s+/g, '').length;
+    const mins = Math.max(3, Math.ceil(textLen / 450));
+    return `${mins}분`;
   }
 
   function parseMarkdownToHtml(content) {
@@ -333,7 +342,7 @@
           <div>
             <div class="card-top">
               <span class="card-vol">${(art.category || '').split('.')[0]}</span>
-              <span class="card-time">⏱️ ${art.readingTime || '4분'} 읽기</span>
+              <span class="card-time">⏱️ ${art.readingTime || calcReadingTime(art.content)} 읽기</span>
             </div>
             <h3 class="card-title">${art.title}</h3>
             <p class="card-summary">${parseInlineMarkdown(art.easySummary || art.summary)}</p>
@@ -404,8 +413,8 @@
             <div class="stat-label">법적 상한 용적률 완화</div>
           </div>
           <div class="stat-item">
-            <div class="stat-val">100% 무결점</div>
-            <div class="stat-label">2026 공공·민간 팩트체크</div>
+            <div class="stat-val">공식 팩트체크</div>
+            <div class="stat-label">국토부 법령·지침 반영</div>
           </div>
         </div>
       </section>
@@ -616,13 +625,13 @@
         </div>
         <div class="trust-banner-body">
           <div class="trust-banner-header">
-            <h3 class="trust-title">공인중개사 & 정비사업 실무 전문가 팩트체크 검증</h3>
-            <span class="trust-cert-pill">E-E-A-T 100% 검증</span>
+            <h3 class="trust-title">도심복합개발 법령 및 실무 팩트체크 검증</h3>
+            <span class="trust-cert-pill">법령·고시 대조 완료</span>
           </div>
           <p class="trust-desc">
-            본 포털의 모든 아티클은 <strong>현대공인중개사사무소 대표 백명건 공인중개사</strong>가
-            국토교통부 『공공주택특별법』(2029년 일몰 연장) 및 『도심복합개발법』(2026년 최신 제정법률),
-            법제처 최신 유권해석, 8·8 주택공급 확대방안을 대조하여 교차 검증한 고신뢰 실무 지식 백과사전입니다.
+            본 포털의 모든 아티클은 <strong>도심복합개발 정책연구팀(수석연구위원 백명건)</strong>이
+            국토교통부 『공공주택 특별법』, 『도심 복합개발 지원에 관한 법률』,
+            법제처 최신 유권해석 및 8·8 주택공급 확대방안을 대조하여 교차 검증한 고신뢰 실무 지식 아카이브입니다.
           </p>
           <div class="trust-checkpoints">
             <span class="checkpoint-item"><span class="material-symbols-outlined icon-xs">check_circle</span> 8·8 대책 인허가 단축 반영</span>
@@ -632,8 +641,8 @@
           </div>
         </div>
         <div class="trust-banner-action">
-          <a href="/about" class="btn-trust-primary">검증 전문가 소개</a>
-          <a href="/contact" class="btn-trust-secondary">1:1 실무 문의하기</a>
+          <a href="/about" class="btn-trust-primary">연구위원 및 편찬위 소개</a>
+          <a href="/contact" class="btn-trust-secondary">문의 및 오류 제보</a>
         </div>
       </section>
     `;
@@ -848,8 +857,8 @@
             </div>
             <h1 class="reader-title">${article.title}</h1>
             <div class="reader-meta-bottom">
-              <span class="reader-author">🏛️ 도심복합개발 실전 연구팀 (검증 전문가: 백명건 대표)</span>
-              <span>⏱️ ${article.readingTime || '4분'} 완독 &nbsp;|&nbsp; 👥 추천: ${(article.targetAudience || ['전체']).join(', ')}</span>
+              <span class="reader-author">🏛️ 도심복합개발 정책연구팀 (수석연구위원 백명건)</span>
+              <span>⏱️ ${article.readingTime || calcReadingTime(article.content)} 완독 &nbsp;|&nbsp; 👥 대상: ${(article.targetAudience || ['전체']).join(', ')}</span>
             </div>
           </header>
 
@@ -888,26 +897,39 @@
           <!-- 실무 Q&A 섹션 -->
           ${qnaHtml}
 
-          <!-- E-E-A-T 저자 프로필 박스 -->
+          <!-- E-E-A-T 정책연구팀 저자 프로필 박스 -->
           <div class="author-profile-box">
             <div class="author-avatar">🏛️</div>
             <div class="author-info">
               <div class="author-badge">
                 <span class="material-symbols-outlined icon-sm" style="font-size:0.9rem;">verified</span>
-                전문가 검증 칼럼 (E-E-A-T)
+                도심복합개발 정책연구 포털 편찬위원회
               </div>
               <div class="author-name">
-                현대공인중개사사무소 · 도심복합개발 연구팀
+                백명건 수석연구위원 · 정책기획팀
               </div>
               <div class="author-desc">
-                공공도심복합사업 및 민간도심복합개발법 실전 정책·법률·사업성 분석 전문. 서울시 및 수도권 주요 정비사업 구역의 권리분석 및 세제 컨설팅을 제공합니다.
+                국토교통부 공공도심복합사업 및 민간도심복합개발법 실전 정책·법령 조문·사업성 모델을 심층 분석하여, 토지등소유자와 국민을 위한 공익적 정책 해설과 권리 분석 연구를 수행합니다.
               </div>
               <div class="author-meta">
-                <span>📍 서울특별시 서초구 반포동 714-26 1층</span>
-                <span>대표: 백명건 (등록번호: 11650-2016-00300)</span>
-                <span>문의: 02-3446-2361</span>
+                <span>🏛️ 도심복합개발 공공·민간 정책 아카이브</span>
+                <span>📑 법령 및 국토부 고시 기준 팩트체크 완료</span>
+                <span>📧 학술 문의 및 제보: research@dochim.kr</span>
               </div>
             </div>
+          </div>
+
+          <!-- 공식 법령 및 공공 출처 박스 -->
+          <div class="sources-reference-box" style="margin: 1.5rem 0; padding: 1.2rem 1.5rem; background: var(--bg-surface-low); border: 1.5px solid var(--border-color); border-radius: var(--radius-md);">
+            <div style="font-weight: 700; color: var(--color-primary); font-size: 0.95rem; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem;">
+              <span class="material-symbols-outlined icon-sm" style="color: var(--color-secondary);">menu_book</span>
+              공식 법령 및 공공 출처 (Official Reference)
+            </div>
+            <ul style="margin: 0; padding-left: 1.2rem; font-size: 0.88rem; color: var(--text-secondary); line-height: 1.8;">
+              <li>국가법령정보센터 (law.go.kr) 「도심 복합개발 지원에 관한 법률」 및 동법 시행령</li>
+              <li>국토교통부 도심공공주택복합사업 업무처리지침 및 후보지 지구지정 고시문</li>
+              <li>서울특별시 정비사업 종합 정보 포털 및 자치구 정비계획 열람공고</li>
+            </ul>
           </div>
 
           ${createAdSenseSlot('본문 중간 반응형 배너')}
@@ -1478,21 +1500,58 @@
   }
 
   function updateAdminUI() {
-    if (elements.btnOpenPublish) {
-      elements.btnOpenPublish.style.display = state.isAdmin ? 'inline-flex' : 'none';
-    }
-    if (elements.btnAdminToggle) {
-      if (state.isAdmin) {
-        elements.btnAdminToggle.innerHTML = '<span class="material-symbols-outlined icon-sm">lock_open</span><span>관리자 종료</span>';
-        elements.btnAdminToggle.title = '관리자 세션 종료(로그아웃)';
-        elements.btnAdminToggle.style.borderColor = 'var(--color-accent)';
-        elements.btnAdminToggle.style.color = 'var(--color-accent-hover)';
-      } else {
-        elements.btnAdminToggle.innerHTML = '<span class="material-symbols-outlined icon-sm">lock</span><span>관리자</span>';
-        elements.btnAdminToggle.title = '관리자 모드 로그인';
-        elements.btnAdminToggle.style.borderColor = '';
-        elements.btnAdminToggle.style.color = '';
+    const headerActions = document.querySelector('.header-actions');
+    let btnAdmin = document.getElementById('btnAdminToggle');
+    let btnPub = document.getElementById('btnOpenPublish');
+
+    if (state.isAdmin) {
+      if (headerActions && !btnAdmin) {
+        btnPub = document.createElement('button');
+        btnPub.className = 'btn-header';
+        btnPub.id = 'btnOpenPublish';
+        btnPub.title = '새 글 작성';
+        btnPub.innerHTML = '<span class="material-symbols-outlined icon-sm">edit_square</span><span>글쓰기</span>';
+        btnPub.addEventListener('click', () => {
+          if (elements.publishModal) elements.publishModal.classList.add('active');
+        });
+
+        btnAdmin = document.createElement('button');
+        btnAdmin.className = 'btn-header';
+        btnAdmin.id = 'btnAdminToggle';
+        btnAdmin.title = '관리자 세션 종료(로그아웃)';
+        btnAdmin.style.borderColor = 'var(--color-accent)';
+        btnAdmin.style.color = 'var(--color-accent-hover)';
+        btnAdmin.innerHTML = '<span class="material-symbols-outlined icon-sm">lock_open</span><span>관리자 종료</span>';
+        btnAdmin.addEventListener('click', () => {
+          if (confirm('관리자 세션을 종료하고 일반 방문자 모드로 전환하시겠습니까?')) {
+            state.isAdmin = false;
+            sessionStorage.removeItem('ADMIN_KEY');
+            localStorage.removeItem('ADMIN_KEY');
+            updateAdminUI();
+            if (state.currentArticle && window.location.pathname.startsWith('/article/')) {
+              renderArticleView(state.currentArticle.id);
+            }
+            alert('관리자 모드가 해제되었습니다.');
+          }
+        });
+
+        // 테마 토글 버튼 앞에 삽입
+        const themeBtn = document.getElementById('themeToggleBtn');
+        if (themeBtn) {
+          headerActions.insertBefore(btnPub, themeBtn);
+          headerActions.insertBefore(btnAdmin, themeBtn);
+        } else {
+          headerActions.appendChild(btnPub);
+          headerActions.appendChild(btnAdmin);
+        }
       }
+    } else {
+      if (btnPub) btnPub.remove();
+      if (btnAdmin) btnAdmin.remove();
+    }
+
+    if (elements.footerAdminBtn && elements.footerAdminBtn.parentElement) {
+      elements.footerAdminBtn.parentElement.style.display = state.isAdmin ? '' : 'none';
     }
     const editBtn = document.getElementById('btnOpenEditArticle');
     if (editBtn) {
