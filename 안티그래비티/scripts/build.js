@@ -252,6 +252,13 @@ for (let i = 0; i < articles.length; i++) {
     ]
   };
 
+  // cardNews.items가 문자열 배열인 글도 있음 -> 객체로 정규화 (undefined 노출 방지)
+  const cardNewsItems = (cardNewsData.items || [])
+    .map(item => (typeof item === 'string'
+      ? { icon: '\u{1F4A1}', title: '', desc: item }
+      : item))
+    .filter(item => item && (item.title || item.desc));
+
   const cardNewsHtml = `
     <div class="card-news-banner">
       <div class="card-news-header">
@@ -259,11 +266,11 @@ for (let i = 0; i < articles.length; i++) {
         <h2 class="card-news-highlight">${cardNewsData.highlightText}</h2>
       </div>
       <div class="card-news-grid">
-        ${(cardNewsData.items || []).map(item => `
+        ${cardNewsItems.map(item => `
           <div class="card-news-item">
-            <div class="item-icon">${item.icon}</div>
-            <h4 class="item-title">${parseInlineMarkdown(item.title)}</h4>
-            <p class="item-desc">${parseInlineMarkdown(item.desc)}</p>
+            <div class="item-icon">${item.icon || ''}</div>
+            <h4 class="item-title">${parseInlineMarkdown(item.title || '')}</h4>
+            <p class="item-desc">${parseInlineMarkdown(item.desc || '')}</p>
           </div>
         `).join('')}
       </div>
