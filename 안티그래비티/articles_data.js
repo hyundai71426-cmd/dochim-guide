@@ -1110,7 +1110,7 @@ window.ARTICLES_DB = [
     ],
     "bridgeStory": "용적률 완화 공식을 이해했다면, 2종 주거지를 준주거지역으로 수직 상승시키는 '종상향의 비결과 비례율 극대화법'을 VOL.14에서 살펴보겠습니다.",
     "slug": "floor-area-ratio-incentive-140-percent",
-    "thumbnail": "/images/thumbnails/thumb_post13.webp",
+    "thumbnail": "/images/thumbnails/thumb_post13.svg",
     "alt": "VOL.13 용적률 완화의 마법: 3종주거 360%, 준주거 700%의 비밀 - PART 3. 사업성 분석과 경제적 혜택 | 도심복합개발 백과사전 썸네일 인포그래픽",
     "qaList": [
       {
@@ -1434,7 +1434,7 @@ window.ARTICLES_DB = [
     ],
     "bridgeStory": "공사비 쟁점을 확인했다면, 마지막으로 '신탁사에 주는 수수료 2~4%가 과연 아까운 돈인지' 손익분기점(BEP)을 VOL.18에서 냉정하게 계산해보겠습니다.",
     "slug": "parking-and-sunlight-regulation-exemption",
-    "thumbnail": "/images/thumbnails/thumb_post17.webp",
+    "thumbnail": "/images/thumbnails/thumb_post17.svg",
     "alt": "VOL.17 주차장·일조권 완화, 도심복합 특례로 오해하면 안 되는 공사비 쟁점 - PART 3. 사업성 분석과 경제적 혜택 | 도심복합개발 백과사전 썸네일 인포그래픽",
     "qaList": [
       {

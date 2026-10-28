@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
+<rect width="1200" height="1200" fill="#12203e"/>
+<rect width="1200" height="140" fill="#ffc107"/>
+<text x="60" y="90" font-family="Noto Sans CJK KR, sans-serif" font-size="52" font-weight="bold" fill="#12203e">도심복합개발 백과사전</text>
+<text x="600" y="420" font-family="Noto Sans CJK KR, sans-serif" font-size="150" font-weight="bold" fill="#ffffff" text-anchor="middle">용적률 완화</text>
+<text x="600" y="600" font-family="Noto Sans CJK KR, sans-serif" font-size="120" font-weight="bold" fill="#ffc107" text-anchor="middle">3종주거 360%</text>
+<text x="600" y="760" font-family="Noto Sans CJK KR, sans-serif" font-size="120" font-weight="bold" fill="#ffffff" text-anchor="middle">준주거 700%</text>
+<text x="600" y="880" font-family="Noto Sans CJK KR, sans-serif" font-size="64" fill="#c8dcff" text-anchor="middle">주거 120% · 준주거 140%까지</text>
+</svg>
