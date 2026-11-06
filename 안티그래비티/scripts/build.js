@@ -400,7 +400,7 @@ for (let i = 0; i < articles.length; i++) {
               도심복합개발 정책연구 포털 편찬위원회
             </div>
             <div class="author-name">
-              백명건 수석연구위원 · 정책기획팀
+              <a href="/author/" style="color: inherit; text-decoration: underline; text-underline-offset: 3px;">백명건</a> 수석연구위원 · 정책기획팀
             </div>
             <div class="author-desc">
               국토교통부 공공도심복합사업 및 민간도심복합개발법 실전 정책·법령 조문·사업성 모델을 심층 분석하여, 토지등소유자와 국민을 위한 공익적 정책 해설과 권리 분석 연구를 수행합니다.
@@ -409,6 +409,7 @@ for (let i = 0; i < articles.length; i++) {
               <span>🏛️ 도심복합개발 공공·민간 정책 아카이브</span>
               <span>📑 법령 및 국토부 고시 기준 팩트체크 완료</span>
               <span>📧 학술 문의 및 제보: research@dochim.kr</span>
+              <span>🔗 <a href="/author/" style="color: var(--color-secondary); font-weight:700;">저자 소개 보기</a></span>
             </div>
           </div>
         </div>
@@ -539,7 +540,7 @@ for (let i = 0; i < articles.length; i++) {
 console.log('\n✅ ${articles.length}개 전체 아티클 순차적 생성 완료!\n');
 
 // ==========================================
-// 3. 4대 정책 페이지 (About, Privacy, Terms, Contact) 정적 생성
+// 3. 4대 정책 페이지 (About, Privacy, Terms, Contact) + 저자 소개 (Author) 정적 생성
 // ==========================================
 console.log('▶ [2단계] 필수 4대 정책 페이지 정적 SSG 생성 시작...\n');
 
@@ -576,7 +577,7 @@ const aboutContent = `
       <div style="background: var(--bg-surface-low); border: 1.5px solid var(--border-color); border-radius: var(--radius-md); padding: 1.2rem 1.5rem; margin: 1.2rem 0;">
         <strong style="color: var(--color-primary); font-size: 1.05rem;">🏛️ 도심복합개발 정책연구 포털 편찬위원회</strong>
         <ul style="margin: 0.6rem 0 0 1.2rem; line-height: 1.8;">
-          <li><strong>수석연구위원:</strong> 백명건 (공인중개사 자격 보유 / 등록번호 11650-2016-00300)</li>
+          <li><strong>수석연구위원:</strong> <a href="/author/" style="color: var(--color-secondary); font-weight:700;">백명건</a> (공인중개사 자격 보유 / 등록번호 11650-2016-00300)</li>
           <li><strong>연구소 소재지:</strong> 서울특별시 서초구 반포동 714-26 1층</li>
           <li><strong>주요 연구 분야:</strong> 공공도심복합사업(공특법), 민간도심복합개발법, 정비사업 비례율 및 권리분석 모델링</li>
           <li><strong>학술 및 연구 문의:</strong> research@dochim.kr</li>
@@ -776,7 +777,96 @@ let contactHtml = templateHtml
   .replace(/<main class="main-wrapper" id="mainContainer">[\s\S]*?<\/main>/, `<main class="main-wrapper" id="mainContainer">\n${contactContent}\n  </main>`);
 
 fs.writeFileSync(path.join(contactDir, 'index.html'), contactHtml, 'utf8');
-console.log('  └─ ✅ /contact/index.html 생성 완료\n');
+console.log('  └─ ✅ /contact/index.html 생성 완료');
+
+// E. 저자 소개 (Author) — 백명건 (검증된 공개 사실만 표기)
+const authorDir = path.join(frontendDir, 'author');
+if (!fs.existsSync(authorDir)) fs.mkdirSync(authorDir, { recursive: true });
+
+const authorContent = `
+  <section class="policy-container">
+    <header class="policy-header">
+      <h1 class="policy-title">저자 소개 · 백명건</h1>
+      <p class="policy-desc">도심복합개발 지식 포털 수석연구위원 · 현대공인중개사사무소 대표</p>
+    </header>
+
+    <div class="policy-content">
+      <div style="background: var(--bg-surface-low); border: 1.5px solid var(--border-color); border-radius: var(--radius-md); padding: 1.2rem 1.5rem; margin: 1.2rem 0;">
+        <strong style="color: var(--color-primary); font-size: 1.05rem;">🏛️ 백명건</strong>
+        <ul style="margin: 0.6rem 0 0 1.2rem; line-height: 1.8;">
+          <li><strong>소속·직함:</strong> 현대공인중개사사무소 대표 · 도심복합개발 지식 포털 수석연구위원</li>
+          <li><strong>자격:</strong> 공인중개사 (등록번호 11650-2016-00300)</li>
+          <li><strong>경력:</strong> 20년 이상 부동산 실무 경험</li>
+          <li><strong>사무소 주소:</strong> 서울특별시 서초구 반포동 714-26 1층</li>
+          <li><strong>대표번호:</strong> 02-3446-2361</li>
+          <li><strong>학술·연구 문의:</strong> research@dochim.kr</li>
+        </ul>
+      </div>
+
+      <h3>연구 분야</h3>
+      <p>
+        공공도심복합사업(공공주택 특별법), 민간도심복합개발법(도심 복합개발 지원에 관한 법률),
+        정비사업 비례율 및 권리분석 모델링을 다룹니다. 본 포털의 글은 국토교통부 고시, LH·SH 공공기관
+        실무 가이드라인, 대법원 판례 등 공식 자료를 대조해 작성합니다.
+      </p>
+
+      <h3>이 포털에서 맡은 일</h3>
+      <p>
+        도심복합개발 연구팀의 수석연구위원으로, 국토교통부 공공도심복합사업 및 민간도심복합개발법의
+        실전 정책·법령 조문·사업성 모델을 심층 분석하고, 토지등소유자를 위한 공익적 정책 해설과
+        권리 분석 연구를 수행합니다. 본 포털의 모든 글은 도심복합개발 연구팀 명의로 발행됩니다.
+      </p>
+
+      <h3>문의 안내</h3>
+      <p>
+        콘텐츠 오류 제보나 추가 문의는 <a href="/contact" style="color: var(--color-secondary); font-weight:700;">문의하기</a>를
+        이용해 주시기 바랍니다. 개별적인 법률·세무·투자 판단은 전문가와 최종 확인하시기 바랍니다.
+      </p>
+
+      <p style="font-size: 0.85rem; color: var(--text-secondary);">이 페이지의 기준일: 2026-11-06</p>
+    </div>
+  </section>
+`;
+
+const authorJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ProfilePage",
+  "mainEntity": {
+    "@type": "Person",
+    "name": "백명건",
+    "jobTitle": "수석연구위원",
+    "worksFor": {
+      "@type": "Organization",
+      "name": "도심복합개발 정책연구 포털 편찬위원회",
+      "url": baseUrl
+    },
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "서울특별시 서초구 반포동 714-26 1층"
+    },
+    "telephone": "02-3446-2361",
+    "url": `${baseUrl}/author/`
+  }
+};
+
+let authorHtml = templateHtml
+  .replace(/<link rel="canonical" href=".*?">/, `<link rel="canonical" href="${baseUrl}/author/">`)
+  .replace(/<title>.*?<\/title>/, `<title>저자 소개 · 백명건 | 도심복합개발 지식 포털</title>`)
+  .replace(/<meta name="title" content=".*?">/, `<meta name="title" content="저자 소개 · 백명건 | 도심복합개발 지식 포털">`)
+  .replace(/<meta name="description" content=".*?">/, `<meta name="description" content="도심복합개발 지식 포털 수석연구위원 백명건 소개 — 현대공인중개사사무소 대표, 공인중개사 등록번호 11650-2016-00300">`)
+  .replace(/<meta property="og:url" content=".*?">/, `<meta property="og:url" content="${baseUrl}/author/">`)
+  .replace(/<meta property="og:title" content=".*?">/, `<meta property="og:title" content="저자 소개 · 백명건 | 도심복합개발 지식 포털">`)
+  .replace(/<meta property="og:description" content=".*?">/, `<meta property="og:description" content="도심복합개발 지식 포털 수석연구위원 백명건 소개 — 현대공인중개사사무소 대표, 공인중개사 등록번호 11650-2016-00300">`)
+  .replace(/<meta property="twitter:title" content=".*?">/, `<meta property="twitter:title" content="저자 소개 · 백명건 | 도심복합개발 지식 포털">`)
+  .replace(/<meta property="twitter:description" content=".*?">/, `<meta property="twitter:description" content="도심복합개발 지식 포털 수석연구위원 백명건 소개">`)
+  .replace(
+    /<script type="application\/ld\+json">[\s\S]*?<\/script>/,
+    `<script type="application/ld+json">\n${JSON.stringify(authorJsonLd, null, 2)}\n  </script>`
+  )
+  .replace(/<main class="main-wrapper" id="mainContainer">[\s\S]*?<\/main>/, `<main class="main-wrapper" id="mainContainer">\n${authorContent}\n  </main>`);
+
+fs.writeFileSync(path.join(authorDir, 'index.html'), authorHtml, 'utf8');
+console.log('  └─ ✅ /author/index.html 생성 완료\n');
 
 // ==========================================
 // 4. 메인 인덱스 페이지 (`frontend/index.html`) 정적 사전 렌더링
@@ -1121,11 +1211,12 @@ let sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://
 // 1) 메인
 sitemapXml += `  <url>\n    <loc>${baseUrl}/</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>\n`;
 
-// 2) 4대 정책 페이지
+// 2) 4대 정책 페이지 + 저자 소개
 sitemapXml += `  <url>\n    <loc>${baseUrl}/about/</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
 sitemapXml += `  <url>\n    <loc>${baseUrl}/privacy/</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
 sitemapXml += `  <url>\n    <loc>${baseUrl}/terms/</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
 sitemapXml += `  <url>\n    <loc>${baseUrl}/contact/</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
+sitemapXml += `  <url>\n    <loc>${baseUrl}/author/</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
 
 // 3) 50개 아티클
 articles.forEach(art => {
@@ -1134,7 +1225,7 @@ articles.forEach(art => {
 
 sitemapXml += `</urlset>`;
 fs.writeFileSync(path.join(frontendDir, 'sitemap.xml'), sitemapXml, 'utf8');
-console.log(`  └─ ✅ sitemap.xml 생성 완료 (총 ${5 + articles.length}개 URL 등록)\n`);
+console.log(`  └─ ✅ sitemap.xml 생성 완료 (총 ${6 + articles.length}개 URL 등록)\n`);
 
 // ==========================================
 // 6. Robots.txt 생성
@@ -1144,6 +1235,7 @@ console.log('▶ [5단계] robots.txt 생성 시작...\n');
 const robotsTxt = `User-agent: *
 Allow: /
 Disallow: /backend/
+Disallow: /admin/
 
 Sitemap: ${baseUrl}/sitemap.xml
 `;

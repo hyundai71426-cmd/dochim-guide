@@ -121,6 +121,8 @@
       renderTermsView();
     } else if (path === '/contact') {
       renderContactView();
+    } else if (path === '/admin') {
+      // 관리자 전용 페이지: 정적 콘텐츠를 유지하고 홈 렌더링을 하지 않음
     } else {
       renderHomeView();
     }

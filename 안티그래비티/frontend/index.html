@@ -2160,6 +2160,7 @@
           <li><a href="/privacy">개인정보처리방침 (Privacy Policy)</a></li>
           <li><a href="/terms">이용약관 및 면책조항</a></li>
           <li><a href="/sitemap.xml" target="_blank">XML 사이트맵</a></li>
+          <li><a href="/author">저자 소개 (백명건)</a></li>
         </ul>
       </div>
     </div>
@@ -2171,27 +2172,6 @@
       </div>
     </div>
   </footer>
-
-  <!-- Modal: Admin Login -->
-  <div class="modal-overlay" id="adminModal">
-    <div class="modal-content modal-content-sm">
-      <button class="modal-close" id="btnCloseAdmin" aria-label="닫기">&times;</button>
-      <div class="modal-icon-badge">🔒</div>
-      <h2 class="modal-title">관리자 인증</h2>
-      <p class="modal-subtitle">
-        글 작성 및 실시간 CMS 수정 권한을 활성화하려면 관리자 암호를 입력하세요.
-      </p>
-      
-      <form id="adminLoginForm">
-        <div class="form-group">
-          <label class="form-label" for="adminPasswordInput">관리자 비밀번호</label>
-          <input type="password" id="adminPasswordInput" class="form-input" placeholder="관리자 비밀번호를 입력하세요" required autocomplete="current-password">
-        </div>
-        <div id="adminLoginError" class="form-error-msg" style="display: none;">비밀번호가 일치하지 않습니다.</div>
-        <button type="submit" class="btn-submit btn-full">관리자 모드 활성화</button>
-      </form>
-    </div>
-  </div>
 
   <!-- Modal: Knowledge Graph Explorer (Stitch Alexandria Map UI) -->
   <div class="modal-overlay" id="graphModal">
@@ -2240,111 +2220,6 @@
         <canvas id="graphCanvas"></canvas>
         <div id="graphTooltip" class="graph-tooltip"></div>
       </div>
-    </div>
-  </div>
-
-  <!-- Modal: New Article Publish -->
-  <div class="modal-overlay" id="publishModal">
-    <div class="modal-content modal-content-md">
-      <button class="modal-close" id="btnClosePublish" aria-label="닫기">&times;</button>
-      <h2 class="modal-title">✍️ 신규 연재 아티클 발행</h2>
-      <p class="modal-subtitle">작성된 글은 포털 지식망과 아카이브에 즉시 연동됩니다.</p>
-      
-      <form id="publishForm" class="contact-form">
-        <div class="form-group">
-          <label class="form-label" for="newPostTitle">제목 *</label>
-          <input type="text" id="newPostTitle" class="form-input" placeholder="예: [심층분석] 신규 도심복합 후보지 선정 기준" required>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="newPostCategory">카테고리</label>
-          <select id="newPostCategory" class="form-input">
-            <option value="PART 1. 개념과 제도 도입 배경">PART 1. 개념과 제도 도입 배경</option>
-            <option value="PART 2. 기존 정비사업과의 비교">PART 2. 기존 정비사업과의 비교</option>
-            <option value="PART 3. 추진 절차와 주민 동의">PART 3. 추진 절차와 주민 동의</option>
-            <option value="PART 4. 핵심 혜택과 인센티브">PART 4. 핵심 혜택과 인센티브</option>
-            <option value="PART 5. 주민 권리와 갈등 해결">PART 5. 주민 권리와 갈등 해결</option>
-            <option value="PART 6. 투자자와 무주택자 가이드">PART 6. 투자자와 무주택자 가이드</option>
-            <option value="PART 7. 전국 주요 후보지 심층 분석">PART 7. 전국 주요 후보지 심층 분석</option>
-            <option value="PART 8. 미래 전망과 도시의 변화">PART 8. 미래 전망과 도시의 변화</option>
-            <option value="PART 9. 선도 구역 정밀 해부">PART 9. 선도 구역 정밀 해부</option>
-            <option value="PART 10. 2026 공모 & 특수 권리">PART 10. 2026 공모 & 특수 권리</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="newPostSummary">3초 핵심 요약 *</label>
-          <input type="text" id="newPostSummary" class="form-input" placeholder="글의 핵심 내용을 한 줄로 요약해 주세요" required>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="newPostTags">태그 (쉼표 구분)</label>
-          <input type="text" id="newPostTags" class="form-input" placeholder="도심복합, 분담금, 용적률, 후보지">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="newPostContent">본문 내용 (마크다운) *</label>
-          <textarea id="newPostContent" class="form-textarea" style="min-height: 180px;" placeholder="## 대제목, ### 소제목, - 목록 등 마크다운 형식으로 작성하세요." required></textarea>
-        </div>
-
-        <button type="submit" class="btn-submit btn-full">새 글 발행하기</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Modal: Article Edit (실시간 CMS 수정) -->
-  <div class="modal-overlay" id="editModal">
-    <div class="modal-content modal-content-lg">
-      <button class="modal-close" id="btnCloseEdit" aria-label="닫기">&times;</button>
-      <h2 class="modal-title">✏️ 글 내용 직접 수정 (실시간 CMS)</h2>
-      <p class="modal-subtitle">
-        제목, 3초 요약, 마크다운 본문, 태그를 실시간으로 직접 수정하고 저장합니다.
-      </p>
-      
-      <form id="editForm" class="contact-form">
-        <input type="hidden" id="editPostId">
-        
-        <div class="form-group">
-          <label class="form-label" for="editPostTitle">제목 *</label>
-          <input type="text" id="editPostTitle" class="form-input" required>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="editPostCategory">카테고리</label>
-          <select id="editPostCategory" class="form-input">
-            <option value="PART 1. 개념과 제도 도입 배경" data-cat="part-1">PART 1. 개념과 제도 도입 배경</option>
-            <option value="PART 2. 기존 정비사업과의 비교" data-cat="part-2">PART 2. 기존 정비사업과의 비교</option>
-            <option value="PART 3. 추진 절차와 주민 동의" data-cat="part-3">PART 3. 추진 절차와 주민 동의</option>
-            <option value="PART 4. 핵심 혜택과 인센티브" data-cat="part-4">PART 4. 핵심 혜택과 인센티브</option>
-            <option value="PART 5. 주민 권리와 갈등 해결" data-cat="part-5">PART 5. 주민 권리와 갈등 해결</option>
-            <option value="PART 6. 투자자와 무주택자 가이드" data-cat="part-6">PART 6. 투자자와 무주택자 가이드</option>
-            <option value="PART 7. 전국 주요 후보지 심층 분석" data-cat="part-7">PART 7. 전국 주요 후보지 심층 분석</option>
-            <option value="PART 8. 미래 전망과 도시의 변화" data-cat="part-8">PART 8. 미래 전망과 도시의 변화</option>
-            <option value="PART 9. 선도 구역 정밀 해부" data-cat="part-9">PART 9. 선도 구역 정밀 해부</option>
-            <option value="PART 10. 2026 공모 & 특수 권리" data-cat="part-10">PART 10. 2026 공모 & 특수 권리</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="editPostSummary">3초 핵심 요약 *</label>
-          <input type="text" id="editPostSummary" class="form-input" required>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="editPostTags">태그 (쉼표 구분)</label>
-          <input type="text" id="editPostTags" class="form-input">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="editPostContent">본문 내용 (마크다운 지원) *</label>
-          <textarea id="editPostContent" class="form-textarea" style="min-height: 240px; font-family: monospace; font-size: 0.9rem;" required></textarea>
-        </div>
-
-        <div style="display: flex; gap: 0.8rem; justify-content: flex-end; margin-top: 1.5rem;">
-          <button type="button" class="btn-header" id="btnCancelEdit">취소</button>
-          <button type="submit" class="btn-submit">💾 수정사항 저장하기</button>
-        </div>
-      </form>
     </div>
   </div>
 
