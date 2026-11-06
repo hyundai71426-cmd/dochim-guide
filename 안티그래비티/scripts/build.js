@@ -451,8 +451,8 @@ for (let i = 0; i < articles.length; i++) {
         "description": plainDesc,
         "url": fullUrl,
         "inLanguage": "ko-KR",
-        "datePublished": "2026-08-01T09:00:00+09:00",
-        "dateModified": `${today}T09:00:00+09:00`,
+        "datePublished": `${article.published || "2026-08-01"}T09:00:00+09:00`,
+        "dateModified": `${article.updated || today}T09:00:00+09:00`,
         "author": {
           "@type": "Person",
           "name": "백명건",
