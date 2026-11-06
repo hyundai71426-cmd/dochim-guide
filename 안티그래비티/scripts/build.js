@@ -1235,7 +1235,6 @@ console.log('▶ [5단계] robots.txt 생성 시작...\n');
 const robotsTxt = `User-agent: *
 Allow: /
 Disallow: /backend/
-Disallow: /admin/
 
 Sitemap: ${baseUrl}/sitemap.xml
 `;
