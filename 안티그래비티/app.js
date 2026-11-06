@@ -17,7 +17,6 @@
     searchQuery: '',
     currentArticle: null,
     theme: localStorage.getItem('THEME') || 'light',
-    isAdmin: btoa(sessionStorage.getItem('ADMIN_KEY') || localStorage.getItem('ADMIN_KEY') || '') === 'dXJiYW4yMDI2IQ=='
   };
 
   // DOM 캐시
@@ -28,19 +27,8 @@
     graphModal: document.getElementById('graphModal'),
     btnOpenGraph: document.getElementById('btnOpenGraph'),
     btnCloseGraph: document.getElementById('btnCloseGraph'),
-    publishModal: document.getElementById('publishModal'),
-    btnOpenPublish: document.getElementById('btnOpenPublish'),
-    btnClosePublish: document.getElementById('btnClosePublish'),
-    publishForm: document.getElementById('publishForm'),
     btnResetGraph: document.getElementById('btnResetGraph'),
     navLinks: document.querySelectorAll('.nav-link'),
-    btnAdminToggle: document.getElementById('btnAdminToggle'),
-    footerAdminBtn: document.getElementById('footerAdminBtn'),
-    adminModal: document.getElementById('adminModal'),
-    btnCloseAdmin: document.getElementById('btnCloseAdmin'),
-    adminLoginForm: document.getElementById('adminLoginForm'),
-    adminPasswordInput: document.getElementById('adminPasswordInput'),
-    adminLoginError: document.getElementById('adminLoginError')
   };
 
   let graphInstance = null;
@@ -60,7 +48,6 @@
   // ==========================================
   async function init() {
     applyTheme(state.theme);
-    updateAdminUI();
     bindGlobalEvents();
 
     // 초기 데이터 로드 (API 또는 정적 DB)
@@ -603,10 +590,6 @@
               <span class="material-symbols-outlined icon-sm">arrow_back</span>
               전체 연재 목록으로
             </button>
-            <button class="btn-header" id="btnOpenEditArticle" style="display: ${state.isAdmin ? 'inline-flex' : 'none'};">
-              <span class="material-symbols-outlined icon-sm">edit</span>
-              이 글 수정하기
-            </button>
           </div>
 
           <!-- 아티클 헤더 -->
@@ -705,28 +688,8 @@
       </div>
     `;
 
-    // 글 수정 버튼 바인딩
-    const btnOpenEdit = document.getElementById('btnOpenEditArticle');
-    if (btnOpenEdit) {
-      btnOpenEdit.addEventListener('click', () => {
-        openEditModal(article);
-      });
-    }
   }
 
-  function openEditModal(article) {
-    const editModal = document.getElementById('editModal');
-    if (!editModal) return;
-
-    document.getElementById('editPostId').value = article.id;
-    document.getElementById('editPostTitle').value = article.title || '';
-    document.getElementById('editPostCategory').value = article.category || 'PART 1. 개념과 제도 도입 배경';
-    document.getElementById('editPostSummary').value = article.easySummary || article.summary || '';
-    document.getElementById('editPostTags').value = (article.tags || []).join(', ');
-    document.getElementById('editPostContent').value = article.content || '';
-
-    editModal.classList.add('active');
-  }
 
   // ==========================================
   // 6. 정책 페이지: About Us (소개)
@@ -1052,229 +1015,9 @@
       });
     }
 
-    // Publish Post Modal
-    if (elements.btnOpenPublish && elements.publishModal) {
-      elements.btnOpenPublish.addEventListener('click', () => {
-        elements.publishModal.classList.add('active');
-      });
-    }
 
-    if (elements.btnClosePublish && elements.publishModal) {
-      elements.btnClosePublish.addEventListener('click', () => {
-        elements.publishModal.classList.remove('active');
-      });
-    }
-
-    if (elements.publishForm) {
-      elements.publishForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const title = document.getElementById('newPostTitle').value;
-        const category = document.getElementById('newPostCategory').value;
-        const summary = document.getElementById('newPostSummary').value;
-        const content = document.getElementById('newPostContent').value;
-        const tags = document.getElementById('newPostTags').value.split(',').map(t => t.trim()).filter(Boolean);
-
-        const newPost = {
-          title,
-          category,
-          categoryId: 'part-1',
-          summary,
-          easySummary: summary,
-          content,
-          tags,
-          targetAudience: ['전체', '토지소유자'],
-          qna: [
-            { q: "Q1. 이 글의 핵심 실무 포인트는 무엇인가요?", a: summary },
-            { q: "Q2. 토지소유자가 가장 주의해야 할 사항은?", a: "사업 추진 일정 및 동의율 요건을 면밀히 확인해야 합니다." },
-            { q: "Q3. 추가 자문은 어디서 받을 수 있나요?", a: "사이트의 문의하기 폼을 통해 전문 연구팀과 상담할 수 있습니다." }
-          ]
-        };
-
-        try {
-          const res = await fetch('/api/articles', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newPost)
-          });
-          if (res.ok) {
-            const data = await res.json();
-            alert('글이 성공적으로 발행되었습니다!');
-            elements.publishModal.classList.remove('active');
-            elements.publishForm.reset();
-            state.articles = await window.ApiClient.getArticles();
-            navigateTo(`/article/${data.data.slug || data.data.id}`);
-            return;
-          }
-        } catch (_) {}
-
-        // 로컬 스토리지 폴백
-        const localSaved = JSON.parse(localStorage.getItem('CUSTOM_ARTICLES') || '[]');
-        const nextOrder = state.articles.length + 1;
-        const customArt = {
-          ...newPost,
-          id: `post-${nextOrder}`,
-          order: nextOrder,
-          readingTime: '4분',
-          cardNews: {
-            tagline: `VOL.${nextOrder} 신규 발행`,
-            highlightText: title,
-            items: [{ icon: '💡', title: '핵심 요약', desc: summary }]
-          },
-          bridgeStory: '새로 발행된 글입니다.',
-          relatedPostIds: ['post-01', 'post-06', 'post-14']
-        };
-        localSaved.push(customArt);
-        localStorage.setItem('CUSTOM_ARTICLES', JSON.stringify(localSaved));
-
-        alert('글이 로컬에 저장되어 발행되었습니다!');
-        elements.publishModal.classList.remove('active');
-        elements.publishForm.reset();
-        state.articles = await window.ApiClient.getArticles();
-        navigateTo(`/article/${customArt.slug || customArt.id}`);
-      });
-    }
-
-    // CMS 수정 모달
-    const editModal = document.getElementById('editModal');
-    const btnCloseEdit = document.getElementById('btnCloseEdit');
-    const btnCancelEdit = document.getElementById('btnCancelEdit');
-    const editForm = document.getElementById('editForm');
-
-    if (btnCloseEdit && editModal) {
-      btnCloseEdit.addEventListener('click', () => editModal.classList.remove('active'));
-    }
-    if (btnCancelEdit && editModal) {
-      btnCancelEdit.addEventListener('click', () => editModal.classList.remove('active'));
-    }
-
-    if (editForm) {
-      editForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const id = document.getElementById('editPostId').value;
-        const title = document.getElementById('editPostTitle').value;
-        const categorySelect = document.getElementById('editPostCategory');
-        const category = categorySelect.value;
-        const categoryId = categorySelect.options[categorySelect.selectedIndex]?.dataset?.cat || 'part-1';
-        const summary = document.getElementById('editPostSummary').value;
-        const content = document.getElementById('editPostContent').value;
-        const tags = document.getElementById('editPostTags').value.split(',').map(t => t.trim()).filter(Boolean);
-
-        const updatedData = {
-          title,
-          category,
-          categoryId,
-          summary,
-          easySummary: summary,
-          content,
-          tags
-        };
-
-        const res = await window.ApiClient.updateArticle(id, updatedData);
-        if (res && res.success) {
-          alert('글이 성공적으로 수정되었습니다!');
-          editModal.classList.remove('active');
-          state.articles = await window.ApiClient.getArticles();
-          renderArticleView(id);
-        } else {
-          alert('수정에 실패했습니다. 다시 시도해 주세요.');
-        }
-      });
-    }
-
-    // Admin 관리자 모달
-    function openAdminModal() {
-      if (elements.adminModal) {
-        if (elements.adminLoginError) elements.adminLoginError.style.display = 'none';
-        if (elements.adminPasswordInput) elements.adminPasswordInput.value = '';
-        elements.adminModal.classList.add('active');
-        if (elements.adminPasswordInput) elements.adminPasswordInput.focus();
-      }
-    }
-
-    if (elements.btnAdminToggle) {
-      elements.btnAdminToggle.addEventListener('click', () => {
-        if (state.isAdmin) {
-          if (confirm('관리자 세션을 종료하고 일반 방문자 모드로 전환하시겠습니까?')) {
-            state.isAdmin = false;
-            sessionStorage.removeItem('ADMIN_KEY');
-            localStorage.removeItem('ADMIN_KEY');
-            updateAdminUI();
-            if (state.currentArticle && window.location.pathname.startsWith('/article/')) {
-              renderArticleView(state.currentArticle.id);
-            }
-            alert('관리자 모드가 해제되었습니다.');
-          }
-        } else {
-          openAdminModal();
-        }
-      });
-    }
-
-    if (elements.footerAdminBtn) {
-      elements.footerAdminBtn.addEventListener('click', () => {
-        if (!state.isAdmin) openAdminModal();
-        else alert('이미 관리자 권한으로 로그인되어 있습니다.');
-      });
-    }
-
-    if (elements.btnCloseAdmin && elements.adminModal) {
-      elements.btnCloseAdmin.addEventListener('click', () => {
-        elements.adminModal.classList.remove('active');
-      });
-    }
-
-    if (elements.adminLoginForm) {
-      elements.adminLoginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const pwd = (elements.adminPasswordInput.value || '').trim();
-        if (pwd === 'urban2026!') {
-          state.isAdmin = true;
-          sessionStorage.setItem('ADMIN_KEY', 'urban2026!');
-          localStorage.setItem('ADMIN_KEY', 'urban2026!');
-          updateAdminUI();
-          elements.adminModal.classList.remove('active');
-          alert('✅ 관리자 인증 완료!\n이제 상단 글쓰기 및 본문 실시간 CMS 수정 기능이 활성화되었습니다.');
-          if (state.currentArticle && window.location.pathname.startsWith('/article/')) {
-            renderArticleView(state.currentArticle.id);
-          }
-        } else {
-          if (elements.adminLoginError) elements.adminLoginError.style.display = 'block';
-        }
-      });
-    }
-
-    // 단축키: Ctrl + Shift + A 관리자 모달
-    window.addEventListener('keydown', (e) => {
-      if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
-        e.preventDefault();
-        if (!state.isAdmin) openAdminModal();
-        else alert('현재 관리자 모드 활성 상태입니다.');
-      }
-    });
   }
 
-  function updateAdminUI() {
-    if (elements.btnOpenPublish) {
-      elements.btnOpenPublish.style.display = state.isAdmin ? 'inline-flex' : 'none';
-    }
-    if (elements.btnAdminToggle) {
-      if (state.isAdmin) {
-        elements.btnAdminToggle.innerHTML = '<span class="material-symbols-outlined icon-sm">lock_open</span><span>관리자 종료</span>';
-        elements.btnAdminToggle.title = '관리자 세션 종료(로그아웃)';
-        elements.btnAdminToggle.style.borderColor = 'var(--color-accent)';
-        elements.btnAdminToggle.style.color = 'var(--color-accent-hover)';
-      } else {
-        elements.btnAdminToggle.innerHTML = '<span class="material-symbols-outlined icon-sm">lock</span><span>관리자</span>';
-        elements.btnAdminToggle.title = '관리자 모드 로그인';
-        elements.btnAdminToggle.style.borderColor = '';
-        elements.btnAdminToggle.style.color = '';
-      }
-    }
-    const editBtn = document.getElementById('btnOpenEditArticle');
-    if (editBtn) {
-      editBtn.style.display = state.isAdmin ? 'inline-flex' : 'none';
-    }
-  }
 
   function applyTheme(theme) {
     state.theme = theme;
