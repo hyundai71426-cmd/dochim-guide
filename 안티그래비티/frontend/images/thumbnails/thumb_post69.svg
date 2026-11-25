@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
+<rect width="1200" height="1200" fill="#12203e"/>
+<rect width="1200" height="140" fill="#ffc107"/>
+<text x="60" y="90" font-family="Noto Sans CJK KR, sans-serif" font-size="52" font-weight="bold" fill="#12203e">도심복합개발 백과사전</text>
+<text x="600" y="420" font-family="Noto Sans CJK KR, sans-serif" font-size="150" font-weight="bold" fill="#ffffff" text-anchor="middle">준공인가</text>
+<text x="600" y="600" font-family="Noto Sans CJK KR, sans-serif" font-size="130" font-weight="bold" fill="#ffc107" text-anchor="middle">이전고시·등기 절차</text>
+<text x="600" y="760" font-family="Noto Sans CJK KR, sans-serif" font-size="56" font-weight="bold" fill="#c8dcff" text-anchor="middle">고시 다음 날 소유권 취득</text>
+</svg>
